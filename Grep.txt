@@ -1,0 +1,39 @@
+Grep Tutorial
+
+1. To find the occurence of a text inside a file:
+    grep "hell" hello.txt (will match hell, hello)
+
+2. To find the complete occurence of a word in a file:
+    grep -w "hell" hello.txt (will match hell only)
+
+3. To find the complete word and without case insensitive:
+    grep -wi "hell" hello.txt (will match hell, Hell, HeLL etc)
+
+4. To find the line number of the word:
+    grep -n "hell" hello.txt (will match and give the line number)
+
+5. To see the given number of lines before a match:
+    grep -w -B NO_OF_LINES_BEFORE_MATCH "hello" hello.txt
+
+6. To see the given number of lines after a match:
+    grep -w -A NO_OF_LINES_AFTER_MATCH "hello" hello.txt
+
+7. To see the same number of lines before and after match:
+    grep -C NO_OF_LINES "hello" hello.txt
+
+8. To see the matches in a number of files in a present directory:
+    grep -wi  "hello" ./* (will try to match words in a subdirectory too)
+
+9. To see the matches in a number of files of a given type in 
+    present directory:
+    grep -wi "hello" ./*txt (will try to match words present in txt files
+        in the present directory)
+
+10. To see the matches in the subdirectories using the recursive search:
+    grep -wir "hello" ./
+
+11. To show the files that match and not the word that matched in subdirectories:
+    grep -wirl "hello" ./
+
+12. To show the count of matches in a given file, remove l while using:
+    grep -c "hello" hello.txt (it also list files with zero matches)
