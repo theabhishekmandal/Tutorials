@@ -37,3 +37,7 @@ Grep Tutorial
 
 12. To show the count of matches in a given file, remove l while using:
     grep -c "hello" hello.txt (it also list files with zero matches)
+
+13. To search for a word in a specific type of files in directory or within
+    subdirectories:
+    grep -r --include=/*extension_name "hello" ./
