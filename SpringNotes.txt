@@ -44,6 +44,85 @@ class Student{
 In Spring Framework, the IoC container used for injecting dependencies uses the XML files
  or annotations that you can use to provide metadata to the IoC container.
 
+ Spring is based on two methods: 
+ 1. Association instead of Inheritence 
+ 2. Runtime Polymorphism
+
+ Example of "Association instead of Inheritence" :
+ class A{
+     // something
+ }
+
+ class B{
+     // something
+ }
+
+Now to get the properties of both the classes in a implementation class then you must extend it
+
+class HelloWorld extends A{
+    // something
+}
+
+or 
+
+class HelloWorld extends B{
+    // something
+}
+
+Spring instead of using inheritence used association as follows:
+Instead of inheriting, we create the object of the class in the implementation class
+class A{
+    //something
+}
+
+class B{
+    //something
+}
+
+class HelloWorld{
+    A a = new A();
+    B b = new B();
+}
+
+2. Runtime Polymorphism:
+
+Suppose you want to implement a class which is having a sayHello method.
+There are two classes which implement sayHello method,
+Suppose today your implementation class needs to implement sayHello method in English,
+and you implemented this by making a associative object of sayHello method in English
+But in future your requirement got changed and now you need to implement sayHello method in Japanese
+and this will cause problem. So to tackle this we will use runtime polymorphism.
+Instead of creating the object directly of the sayHello classes, we use 
+sayHello object as reference object and pass the classes(which implements sayHello interface)
+as new Instance.
+
+interface sayHello{
+    //something
+}
+
+class sayHelloInEnglish implements sayHello{
+    // something
+}
+
+class sayHelloInHindi implements sayHello{
+    //something
+}
+
+class sayHelloimplementation{
+    sayHelloInEnglish obj = new sayHelloInEnglish();
+}
+
+The above code will cause problem, so the new implmentation is:
+From this code, if your future requirements got changed then no issue will be 
+created till the class which is being passed has implemented sayHello interface
+class sayHelloimplementation{
+    sayHello obj;
+    public sayHelloimplementation(sayHello obj){
+        this.obj = obj;
+    }
+}
+
+
  Aspect Oriented Programming:
 It is a approach in which the "cross cutting concerns" are kept seperate with the business logic.
 The cross cutting concerns can be Security, Logging, Profiling and Transaction Management.
