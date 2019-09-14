@@ -1,0 +1,106 @@
+Note from 2019-09-14 10:59:21.983
+
+vim tutorial
+
+in  command mode press
+key 				Description
+j					to move down 
+k					to move up
+h					to move left
+l					to move right
+i					to get in insert mode
+a					to append a text following current cursor posititon
+A					to append a text to the end of the current line
+q					to quit
+wq					save and quit
+!q					quit without saving
+dd					to delete a line
+d					to cut
+u					to undo anything
+ctrl R				to redo anything
+{					to move couple of blocks
+}					to move couple of blocks
+10l					to move 10 lines right
+10h					to move 10 lines left
+10j					to move 10 lines down
+10k					to move 10 lines up
+numbers can work with {, }, gg, G also
+yy					to copy a line
+p					to paste below
+P					to paste above
+10dd				to delete 10 lines below
+ctrl V				to go to visual mode and select a group of lines
+o 					to add a line below and go to insert mode
+O					to add a line above and go to insert mode
+c					to delete a line and go to insert mode
+> 					to indent right
+<					to indent left
+
+To move horizontally:
+w					to move to the beginning of next word
+W					to move to the beginning of next word by jumping 						spaces
+b					to move to the beginning of previous word
+B					to move to the beginning of previous word by 						jumping  spaces
+e					to move to the end of the next word
+E					to move to the end of the next word by jumping spaces
+
+ge					to move to the end of the previous word
+gE					to move to the end of the previous word including by 
+					jumping spaces
+:20					to go the line number 20
+0					to move to the beginning of the line
+$					to move to the end of the line
+tC					to move a character left to  character 'C'
+fC					to move a character 'C'
+%					to move to the matching parenthesis back and forth
+D					to delete from the current position to the end of line
+*					toggle between the occurences of the current word
+fh;					to search for h then press ; to go to next word by 						pressing ;		
+
+
+~					to swap the case of the character
+5 ~					to change the case of the next
+g~iw				to toggle the case of the current inner word
+.					does the last command
+r					to replace a character
+R                                      to replace all the characters without shifting
+V					to select all line in visual mode
+v					to select in visual mode starting from current char
+ctrl-v				to select cursor in vertical mode
+x					to delete one character at a time in forward
+X					to delete one character at a time in backward
+gt					switch to tabs
+gT					switch to tabs
+
+Macros
+qx					starts recording a macro in button x
+q					q again to stop the macro
+@x 					to apply the macro
+
+Nouns in Vim
+iw 						inner word
+it						inner tag
+i						inner quotes
+ip						inner paragraph
+as						as sentence
+
+/						to search for a word
+?						to search in reverse direction
+:set  relativenumber		to set a relative number on line
+:set norelativenumber	to turn off the relative number
+
+Surround
+cs" '					to change the " into ' but not the text between
+
+
+syntax on				to highlight
+terminal				opens up terminal
+below terminal			opens up terminal below
+vertical terminal			opens up terminal on left
+below vertical terminal	opens up terminal on the right
+
+add the following in vimrc file
+nnoremap <F4> :NERDTreeToggle<CR>  
+let g:NERDTreeWinPos = "right"
+
+
