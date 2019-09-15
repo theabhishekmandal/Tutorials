@@ -4,7 +4,7 @@ vim tutorial
 
 in  command mode press
 key 				Description
-j					to move down 
+j					to move down
 k					to move up
 h					to move left
 l					to move right
@@ -35,6 +35,9 @@ O					to add a line above and go to insert mode
 c					to delete a line and go to insert mode
 > 					to indent right
 <					to indent left
+gd                  to go to the local declaration of the identifier
+:noh                to turn off the highlight after gd
+
 
 To move horizontally:
 w					to move to the beginning of next word
@@ -45,7 +48,7 @@ e					to move to the end of the next word
 E					to move to the end of the next word by jumping spaces
 
 ge					to move to the end of the previous word
-gE					to move to the end of the previous word including by 
+gE					to move to the end of the previous word including by
 					jumping spaces
 :20					to go the line number 20
 0					to move to the beginning of the line
@@ -55,7 +58,7 @@ fC					to move a character 'C'
 %					to move to the matching parenthesis back and forth
 D					to delete from the current position to the end of line
 *					toggle between the occurences of the current word
-fh;					to search for h then press ; to go to next word by 						pressing ;		
+fh;					to search for h then press ; to go to next word by 						pressing ;
 
 
 ~					to swap the case of the character
@@ -93,14 +96,14 @@ Surround
 cs" '					to change the " into ' but not the text between
 
 
-syntax on				to highlight
-terminal				opens up terminal
-below terminal			opens up terminal below
-vertical terminal			opens up terminal on left
-below vertical terminal	opens up terminal on the right
+:syntax on				    to highlight
+:terminal				    opens up terminal
+:below terminal			    opens up terminal below
+:vertical terminal			opens up terminal on left
+:below vertical terminal	opens up terminal on the right
 
 add the following in vimrc file
-nnoremap <F4> :NERDTreeToggle<CR>  
+nnoremap <F4> :NERDTreeToggle<CR>
 let g:NERDTreeWinPos = "right"
 
 

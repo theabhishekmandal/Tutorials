@@ -1,5 +1,6 @@
-Spring came against Enterprise Java Beans:
-    Spring --> Ejb
+Features of Spring Framework:
+    - Spring came against Enterprise Java Beans:Spring --> Ejb
+
 
 In case of Enterprise Java Beans, Application becomes heavy weight and tightly coupled.
 In case of Spring, Application becomes light weight and loosly coupled.
@@ -40,7 +41,7 @@ class Student{
         this.car = car;
     }
 }
-
+===================================================================================================================================
 In Spring Framework, the IoC container used for injecting dependencies uses the XML files
  or annotations that you can use to provide metadata to the IoC container.
 
