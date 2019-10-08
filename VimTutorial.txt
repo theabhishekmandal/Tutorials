@@ -106,4 +106,6 @@ add the following in vimrc file
 nnoremap <F4> :NERDTreeToggle<CR>
 let g:NERDTreeWinPos = "right"
 
+,z                      to go to goyo mode
+,w                      to save the current file
 

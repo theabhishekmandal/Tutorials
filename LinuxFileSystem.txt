@@ -1,0 +1,8 @@
+/       -   "Root", the top of the file system heirarchy.
+/bin    -   Binaries and other executable programs.
+/etc    -   System configuration files. eg: "whether to load in cli mode or gui mode".
+/home   -   Home directories where the username and it's related files are there.
+/opt    -   Optional or third party software.
+/tmp    -   Temporary space, typically cleared at Reboot.
+/usr    -   User related programs.
+/var    -   Variable data, most notably log files.
