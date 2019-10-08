@@ -104,7 +104,7 @@ cs" '					to change the " into ' but not the text between
 
 add the following in vimrc file
 nnoremap <F4> :NERDTreeToggle<CR>
-let g:NERDTreeWinPos = "right"
+let g:NERDTreeWinPos = "left"
 
 ,z                      to go to goyo mode
 ,w                      to save the current file
