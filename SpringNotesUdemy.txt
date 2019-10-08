@@ -1,0 +1,59 @@
+Why Spring?
+
+    -   Early version of EJB(v1 and v2) were extremely complex !!!
+    -   Multiple deployment descriptors.
+    -   Multiple Interfaces.
+    -   Poor Performance of Entity Beans.
+
+What's New in Spring 5?
+    -   Updated minimum java requirements for Java 8 or higher
+    -   Deprecated Legacy integration for: Tiles, Velocity, Guava etc
+    -   Updated Spring MVC to use new versions of Servlet API 4.0
+    -   Added new reactive programming framework: Spring WebFlux.
+
+Goals of Spring
+    -   LightWeight development with Java POJOs (Plain Old Java Objects)
+    -   Dependency injection to promote loose coupling
+    -   Declarative programming with Aspect-Oriented-Programming(AOP)
+    -   Minimize boilerplate Java code
+
+Spring Core Container
+    -   It manages how beans are created
+    -   It has four parts:
+            1.  Beans   -   (BeanFactory)It is responsbile for creating beans. Read Config files, setting properties etc
+            2.  Core    -   creating beans and making those beans available
+            3.  SpEl    -   Spring Expression Language, used within the config file to refer to other beans
+            4.  Context -   It is responsible to hold the beans in the memory
+
+Spring Infrastructure
+    -   Aop             -   It allows to create applciation wide services like logging, security, transaction, instrumentation.
+                            No need to modify your code, just add a config or annotation.
+    -   Aspects         -
+    -   Instrumentation -   Creating Java agents to remotely monitor your app with JMX (Java Management Extension)
+    -   Messaging       -
+
+Data Access Layer
+    -   JDBC            -   JDBC helper classes, helps to reduce the JDBC code by 50 %
+    -   ORM             -   Object to Relational Mapping, Integration with hibernate and JPA
+    -   Transactions    -   Supporting Transactions on methods, database calls.
+    -   OXM             -
+    -   JMS             -   Java Message Service, used to send message to the message queue asynchronously
+
+Home for Spring MVC framework(Web Layer)
+    -   Servlet         -
+    -   WebSocket       -
+    -   Web             -
+    -   Portlet         -
+
+Test Layer
+    -   Unit        -
+    -   Integration -
+    -   Mock        -
+
+What are Spring "Projects" ?
+    -   Additional Spring modules built-on top of the core Spring Framework
+    -   Only use what you need,
+    -   Spring Cloud, Spring Data
+    -   Spring Batch, Spring Security
+    -   Spring for Android, Spring Web Flow
+    -   Spring Web Services, Spring LDAP
