@@ -45,4 +45,25 @@ eg: avg is a backup software
 /opt/avg/lib
 /opt/avg/log
 
+Listing files command:
+    ls          -       listing files in a directory
+    ls -l       -       long listing files in a directory
+    ls -a       -       listing hidden files also
+    ls -t       -       list files by time
+    ls -r       -       list files reverse order alphabetically
+    ls -tr      -       list files in reverse order of time
+    ls -R       -       list files in all directories recursively
+    ls -F       -       list files by type i.e whether it's a directory, link or a file
+    ls -d       -       list directory name, not contents.
+    ls --color  -       Colorize the output
+
+install tree:
+    sudo apt-get install tree
+
+tree commands:
+    tree is same as ls -R, but creates visual output
+    tree -C     -   listing files with colorize output
+    tree -D     -   list directories only
+
+
 
