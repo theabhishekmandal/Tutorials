@@ -57,3 +57,25 @@ What are Spring "Projects" ?
     -   Spring Batch, Spring Security
     -   Spring for Android, Spring Web Flow
     -   Spring Web Services, Spring LDAP
+
+Installing tomcat in linux:
+    go to tomcat.apache.org and download the latest tar.gz format file
+    sudo -s
+    cd /usr/local
+    mv apache-tomcat-9.0xxx tomcat9
+    vim ~/.bashrc
+    write these three lines and save
+    export CATALINA_HOME="/usr/local/tomcat9"
+    alias tomcatstart="/usr/local/tomcat9/bin/startup.sh"
+    alias tomcatstop="/usr/local/tomcat9/bin/shutdown.sh"
+    source ~/.bashrc
+
+To start and stop:
+sudo -s
+tomcatstart (to start the server)
+tomcatstop  (to stop the server)
+
+
+
+
+
