@@ -69,13 +69,65 @@ Installing tomcat in linux:
     alias tomcatstart="/usr/local/tomcat9/bin/startup.sh"
     alias tomcatstop="/usr/local/tomcat9/bin/shutdown.sh"
     source ~/.bashrc
+    sudo chmod -R 777 /usr/local/tomcat9  => give permission to user
 
 To start and stop:
 sudo -s
 tomcatstart (to start the server)
 tomcatstop  (to stop the server)
 
+Integrating tomcat9 to eclipse:
+    -   Open eclipse and go to servers
+    -   Select Apache and go to Apache version 9
+    -   select the directory as /usr/local/tomcat9
 
+Installing Spring jar files
+    -   go to www.luv2code.com/downloadspring
+    -   go to latest spring version and download dist.zip file
+    -   extract the zip file
+    -   goto the lib folder and copy all the jar files
+    -   create a java project such as "spring-demo-one"
+    -   create a folder named as "lib" and paste all the jar files
+    -   now right click on project "spring-demo-one" and goto properties
+    -   goto java Build Path -> libraries and then click add jars
+    -   Select all the jars and click add and then apply and close
 
+Inversion of Control
+    -   Outsource to an object factory
+    -   The process of outsourcing the construction and management of objects.
+    -   Spring Container Primary Functions
+        -   Create and manage objects(Inversion of Control)
+        -   Inject object's dependencies(Dependency injection)
+    -   Configuring Spring Container
+        -   XML Configuration(legacy, but most legacy app still use this)
+        -   Java Annotations(modern)
+        -   Java Source Code(modern)
+    -   Spring Development Process
+        -   Configuring your Spring Beans
+            -   Using applicationContext.xml file to add the beans
+        -   Create a spring Container
+            -   Spring Container is generally known as ApplicationContext
+                -   Specialized implementations
+                    -   ClassPathXmlApplicationContext
+                    -   AnnotationConfigApplicationContext
+                    -   GenericWebApplicationContext
+                    -   others
+        -   Retrieve beans from Spring Container
+            -   Using ClassPathXmlApplicationContext to create a spring container
+            -   retrieving bean from the spring container
 
+What is Spring Bean
+    -   A "Spring Bean" is simply a Java Object.
+    -   When Java objects are created by the Spring Container, then
+        Spring refers to them as "Spring Beans".
+    -   Spring beans are created from normal Java classes just like java objects
 
+What is dependency injection
+    -   Dependency injection is a pattern through which we implement IoC,
+        where the control being inverted is setting of object's dependencies.
+    -   Dependecy injection is the outsourcing and injection of the objects.
+    -   Rather than manually creating the objects and it's dependencies
+        Spring Framework will do this for us.
+    -   Injection Types in Spring that are most commonly used.
+        -   Constructor Types
+        -   Setter Injection
