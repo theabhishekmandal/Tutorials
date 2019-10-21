@@ -131,3 +131,5 @@ What is dependency injection
     -   Injection Types in Spring that are most commonly used.
         -   Constructor Types
         -   Setter Injection
+    -   Injection of literal values can also be done
+    -   Injection using properties file,
