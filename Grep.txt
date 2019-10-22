@@ -24,7 +24,7 @@ Grep Tutorial
 8. To see the matches in a number of files in a present directory:
     grep -wi  "hello" ./* (will try to match words in a subdirectory too)
 
-9. To see the matches in a number of files of a given type in 
+9. To see the matches in a number of files of a given type in
     present directory:
     grep -wi "hello" ./*txt (will try to match words present in txt files
         in the present directory)

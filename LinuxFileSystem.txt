@@ -65,5 +65,50 @@ tree commands:
     tree -C     -   listing files with colorize output
     tree -D     -   list directories only
 
+Permissions
+    -   doing "ls -l"
+        -   Symbol  Type
+            -       Regular file
+            d       directory
+            |       symbolic link
+            r       read
+            w       write
+            x       Execute
 
+    -   Permissions     File                        Directory
+        Read(r)         Allows file to be read      Allows file names in the directory
+                                                    to be read.
 
+        Write(w)        Allows a file to modified   Allows entries to be modified
+                                                    within directory.
+
+        Execute(x)      Allows the execution of     Allows access to contents and
+                        a file                      metadata for entries.
+
+Permission Categories
+    -   Symbol      Category
+        u           User
+        g           Group
+        o           Other
+        a           All
+
+Secret Decoder ring
+    -   "-rw-r--r--"
+            -   first "-" represents the type of file
+            -   next three chars i.e "rw-" represents the permissions to User
+            -   next three chars i.e "r--" represents the permissions to Group
+            -   next three chars i.e "r--" represents the permissions to Other
+
+Changing permissions
+    -   Item        Meaning
+        chmod       Change mode command
+        ugoa        User category user, group, other, all
+        +-=         Add, subtract, or set permissions
+        rwx         Read, Write, Execute
+
+    -   eg: chmod g+w sales.data means giving the Group to have the
+            permission to write and modify the files
+
+            chmod u+rwx,g-x sales.data means giving the user to
+            have read, write and execute permission but the group
+            does not have the execute permissions.
