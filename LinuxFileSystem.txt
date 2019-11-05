@@ -112,3 +112,26 @@ Changing permissions
             chmod u+rwx,g-x sales.data means giving the user to
             have read, write and execute permission but the group
             does not have the execute permissions.
+
+Numeric Based Permissions
+    -   r   w   x
+        0   0   0   Value for off
+        1   1   1   Binary value for on
+        4   2   1   Base 10 value for on
+    -   Octal   Binary    String     Description
+        0           0     ---           No permissions
+        1           1     --x           Execute only
+        2           10    -w-           Write Only
+        3           11    -wx           Write and execute(2+1)
+        4           100   r--           Read only
+        5           101   r-x           Read and execute(4+1)
+        6           110   rw-           Read and write(4+2)
+        7           111   rwx           Read, write and execute(4+2+1)
+
+Groups
+    -   Every user is in atleast one group
+    -   Users can belong to many groups
+    -   Groups are used to organize Users
+    -   The groups command displays a user's groups.
+    -   You can also use "id -Gn"
+
