@@ -1,0 +1,35 @@
+Languages-
+    Java, anaconda Python3 and scala
+    SDKMan to install multiple versions of java
+
+Ide
+    vim
+    Intellij(with vim)
+    Eclipse(vim)
+    Pycharm(vim)
+    Visual Studio Code
+        -   Atom one Dark Theme
+        -   Bracket Colorizer
+        -   Debugger for Java
+        -   Java Dependency Viewer
+        -   Java Extension Pack
+        -   Java Test Runner
+        -   Language support for java
+        -   python
+        -   scala
+        -   vim
+
+
+Terminal tools
+    zsh
+    oh-my-zsh
+    zsh and oh-my-zsh configuration
+    tmux
+
+Others
+    Teamviewer
+    Telegram
+    chrome
+    opera
+
+
