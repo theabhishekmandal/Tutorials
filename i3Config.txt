@@ -1,0 +1,16 @@
+
+follow this github link for i3 setup and configuration
+https://github.com/addy-dclxvi/i3-starterpack
+
+to turn off the laptop monitor 
+vim ~/.xprofile
+xrandr --output eDP-1 --off
+chmod +x ~/.xprofile
+
+to set up wallpaper
+sudo apt-install nitrogen
+open nitrogen and give path to wallapaper directories eg: /usr/share/backgrounds/linuxmint-ulyana
+save background with scaling enabled
+
+in i3 config file add
+exec --no-startup-id nitrogen --restore
