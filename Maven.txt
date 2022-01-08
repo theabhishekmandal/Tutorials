@@ -9,15 +9,82 @@ mvn archetype:generate -DgroupId=com.abhishek -DartifactId=hellomaven -Darchetyp
 	- Pom stands for project object model
 
 	- To change the project source and target version
-	- <properties>
-	<maven.compiler.source>11</maven.compiler.source>
-	<maven.compiler.target>11</maven.compiler.target>
-	</properties>
-	
+	-   <properties>
+	        <maven.compiler.source>11</maven.compiler.source>
+	        <maven.compiler.target>11</maven.compiler.target>
+	    </properties>
+
 	mvn install
 		- Compiling the project, running the tests and packaging
-	
+
 	java -cp ./target/nameOfJar com.packageName.MainClassName
 		- Running the project
-	
-	
+
+    Maven Plugin vs Maven Goals:
+        -   Maven Plugin is a collection of one or more Maven Goals
+        -   this the way to recognize it => pluginId:goalId
+        -   Example
+                -   archetype:generate
+                    -   here archtype is the plugin and generate is the goal
+                -   install:install
+                    -   same with this one
+
+    Maven Phases and Goals
+    -   When you run the mvn install command then you have asked maven to execute lifecycle
+        phase
+    -   Maven has multiple lifecycle phases such as
+        -   process-resources
+        -   compile
+        -   test
+        -   package
+
+    -   when any phase is run such as "package", then it will run all the previous
+        phases as well
+
+    -   each phase is related to either one or more plugin:goal
+        -   process-resources   =>  resources:resources
+        -   compile             =>  compiler:compiler
+        -   test                =>  surefire:test
+        -   package             =>  jar:jar
+
+    -   Instead of using "mvn install", you can write "mvn surefire:test" and maven
+        will execute all the prior phases with which this phase is associated
+
+    Maven Coordinates
+    -   Plugins such as jar and war will look at the Maven Coordinates of the pom.xml
+    -   These coordinates are
+        -   groupId
+        -   artifactId
+        -   version
+        -   packaging
+    -   These coordinates are internally represented as
+        -   groupId:artifactId:pakaging:version
+        -   And will decide where our project will be located in maven repository
+        -   And will also decide the name of the final output (jar or war) file
+
+    -   groupId
+        -   refers to the name of the package
+    -   artifactId
+        -   subelement of groupId, used to name our project, will be used in jar or war file
+    -   version
+        -   When we are continusously developing the project, but haven't released it yet, then it will have
+            -   hellomaven-1.0-SNAPSHOT.jar
+            -   otherwise, when it is released it will have hellomaven-1.0.jar
+
+    -   packaging
+        -   It is basically used to decide what type of packaging of the project will be used jar or war or ear
+
+    Maven Repositories
+    -   When we run "mvn install" command, then it downloads a bunch of dependencies to run
+        the project
+    -   http://repo.maven.apache.org/maven2/ is the default maven repository url
+    -   While packaging the project, maven will pull all the required dependencies from
+        remote maven repository and will store them in local maven repository
+    -   During next build it will reuse the same set of dependencies from the local maven
+        repository
+    -   Default local maven repository is in home directory "/home/{user}/.m2/repository"
+
+
+
+
+
