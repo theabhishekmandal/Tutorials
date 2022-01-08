@@ -1,0 +1,23 @@
+Creating via command line
+mvn archetype:generate -DgroupId=com.abhishek -DartifactId=hellomaven -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+
+	- archetype here means maven goal, here maven goal is to generate a project
+	- Arguments passed with -D parameters to the archetype
+	- groupId is java package name for our project
+	- archetypeArtifactId defines what type of project we are creating
+	- Interactive mode is set to false, if no parameters are given then it goes to interactive mode where it dynamically asks for groupId archetype etc
+	- Pom stands for project object model
+
+	- To change the project source and target version
+	- <properties>
+	<maven.compiler.source>11</maven.compiler.source>
+	<maven.compiler.target>11</maven.compiler.target>
+	</properties>
+	
+	mvn install
+		- Compiling the project, running the tests and packaging
+	
+	java -cp ./target/nameOfJar com.packageName.MainClassName
+		- Running the project
+	
+	
