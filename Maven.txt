@@ -84,6 +84,47 @@ mvn archetype:generate -DgroupId=com.abhishek -DartifactId=hellomaven -Darchetyp
         repository
     -   Default local maven repository is in home directory "/home/{user}/.m2/repository"
 
+    Customising Maven settings
+    -   By default maven uses 1.5 as the java version
+    -   We can see this in the effective pom(In Eclipse go to effective pom tab, in Intellij
+        do double shift and search for effective pom)
+    -   Every pom.xml file will derive some settings from the super pom i.e effective pom
+    -   If we search for compiler plugin then it is using a very old version of plugin
+    -   So, that's why it is showing 1.5 as the java version
+    -   We can override this plugin in our pom.xml file
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.2</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    Some maven Commands
+    -   mvn install, will compile package and run the tests
+        -   if tests fail then there will be error shown
+    -   mvn install -DskipTests, will do the above but won't run the tests
+    -   mvn install -Dmaven.test.skip=true, will do the same thing as above
+
+    Dependency Management
+    -   Maven uses project coordinates such as groupId, artifactId, version to locate
+        the set of dependencies in the maven repository
+    -   It will download all the repositories in the local .m2/repository folder
+    -   And it will add them to the classpath.
+    -   It will also download all the transitive dependencies as well. For example
+        -   if spring-context is added as dependency, then it will download spring-aop,
+            spring-beans as well
+
+
+
+
+
 
 
 
