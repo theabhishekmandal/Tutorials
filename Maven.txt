@@ -1,24 +1,26 @@
 Creating via command line
 mvn archetype:generate -DgroupId=com.abhishek -DartifactId=hellomaven -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
 
-	- archetype here means maven goal, here maven goal is to generate a project
-	- Arguments passed with -D parameters to the archetype
-	- groupId is java package name for our project
-	- archetypeArtifactId defines what type of project we are creating
-	- Interactive mode is set to false, if no parameters are given then it goes to interactive mode where it dynamically asks for groupId archetype etc
-	- Pom stands for project object model
+	-   archetype here means maven goal, here maven goal is to generate a project
+	-   Arguments passed with -D parameters to the archetype
+	-   groupId is java package name for our project
+	-   archetypeArtifactId defines what type of project we are creating
+	-   Interactive mode is set to false, if no parameters are given then it goes to interactive mode where it dynamically asks for groupId archetype etc
+	-   Pom stands for project object model
 
-	- To change the project source and target version
+	-   To change the project source and target version
 	-   <properties>
 	        <maven.compiler.source>11</maven.compiler.source>
 	        <maven.compiler.target>11</maven.compiler.target>
 	    </properties>
 
 	mvn install
-		- Compiling the project, running the tests and packaging
+		-   Compiling the project, running the tests and packaging
 
 	java -cp ./target/nameOfJar com.packageName.MainClassName
-		- Running the project
+		-   Running the project
+        -   all packaging is done under the target folder
+        -   also the packaging tag in pom.xml tell whether it will be jar or war
 
     Maven Plugin vs Maven Goals:
         -   Maven Plugin is a collection of one or more Maven Goals
@@ -120,6 +122,55 @@ mvn archetype:generate -DgroupId=com.abhishek -DartifactId=hellomaven -Darchetyp
     -   It will also download all the transitive dependencies as well. For example
         -   if spring-context is added as dependency, then it will download spring-aop,
             spring-beans as well
+
+    Note -  By default artifactId and version is used to name the jar or war file
+            -   <artifactId>productwebArtifact</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            -   Then the jar or war will be named as productwebArtifact-1.0-SNAPSHOT.jar
+
+            But, If under build tag we have finalname tag present then that value will be used for
+            naming the jar or the war file
+            -   <build>
+                    <finalName>productweb</finalName>
+                </build>
+            -   Then the jar or war will be named as productweb.jar
+
+    Creating a MultiModule Project
+    -   Create a Parent Pom for a multimodule project
+        -   copy one of the pom.xml from your modules and place it inside the root of your modules
+            -   Eg: -----------pom.xml(parent)
+                        -------module1
+                                ----pom.xml
+                        -------module2
+                                ----pom.xml
+
+        -   packaging should be "pom" and not jar or war
+            -   <artifactId>productparent</artifactId>
+                <packaging>pom</packaging>
+                <version>1.0-SNAPSHOT</version>
+        -   add all the multimodule dependencies inside your <module> tag
+            -   <modules>
+                    <module>module1</module>
+                    <module>module2</module>
+                </modules>
+
+    -   Set Dependency of parent in child modules
+        -   Create a parent tag in each of the modules and add parent artifactId, groupId and version
+        -   <parent>
+                <groupId>com.company.product</groupId>
+                <artifactId>productparent</artifactId>
+                <version>1.0</version>
+            </parent>
+    -   After that go to parent pom folder and write "mvn clean install"
+    -   When running the above command, maven puts all the modules in the "Reactor"
+    -   This reactor decides the build order of the modules i.e if one module is dependent on
+        another then that module needs to build first
+    -   After that maven builds the jar and places it inside the local .m2 repository
+
+
+
+
+
 
 
 
