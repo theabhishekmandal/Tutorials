@@ -167,6 +167,40 @@ mvn archetype:generate -DgroupId=com.abhishek -DartifactId=hellomaven -Darchetyp
         another then that module needs to build first
     -   After that maven builds the jar and places it inside the local .m2 repository
 
+    InterModule dependency
+    -   To add one module dependent on another add the following as dependency in the other,
+        where all the following maven coordinates belong to the dependent module
+    -   <dependency>
+            <groupId>com.company.product</groupId>
+            <artifactId>dependent-module</artifactId>
+            <version>1.0</version>
+        </dependency>
+
+    Maven Scopes
+    -   Maven allows us the visibility of the project dependencies using the scope element
+    -   which scope we use will impact on when those dependencies are avaialbe at maven lifecycle
+    -   There are 6 scopes
+        -   compile
+                -   In compile scope the dependencies are available at compile, test, run time.
+                -   It is also the default scope
+        -   runtime
+                -   They are not available in compile time but are present in test and run time.
+        -   provided
+                -   In provided scope the dependencies also are available at compile, test, run time.
+                -   But, they don't need to get deployed like the servlet-api
+                    -   We need the servelet api while running the application in local
+                    -   But, when it is deployed then it is not required since the application servers already have them
+        -   test
+                -   In test scope dependencies are available during compiling the tests and running them. Eg junit
+        -   system
+                -   Not used that much in projects.
+                -   When there is an external jar dependency that is not present in maven repo, but in system path
+                    then we can use this scope.
+        -   import
+                -   This dependency is used on pom based projects and not on jar or war based projects.
+
+
+
 
 
 
