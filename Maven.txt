@@ -228,6 +228,29 @@ mvn archetype:generate -DgroupId=com.abhishek -DartifactId=hellomaven -Darchetyp
         -   But, if the version is not removed from the child module then, the child module will override the
             dependency version that is declared in the parent pom.
 
+    Plugin Management
+        -   Different modules may use the different version and different configuration of same plugins.
+        -   To enable that all the child modules use the same version and same configuration of plugin
+            then in that case plugin management tag is used.
+        -   Go to parent pom and use pluginmanagement tag like this.
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-compiler-plugin</artifactId>
+                            <version>3.2</version>
+                            <configuration>
+                                <source>11</source>
+                                <target>11</target>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        -   pluginManagment tag comes under build tag
+        -   In this we define the version and configuration of plugin that we want to use.
+        -   Now remove the versions and configurations from the plugins of the child modules.
 
 
 
