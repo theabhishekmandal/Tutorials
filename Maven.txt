@@ -178,7 +178,7 @@ mvn archetype:generate -DgroupId=com.abhishek -DartifactId=hellomaven -Darchetyp
 
     Maven Scopes
     -   Maven allows us the visibility of the project dependencies using the scope element
-    -   which scope we use will impact on when those dependencies are avaialbe at maven lifecycle
+    -   which scope we use will impact on when those dependencies are available at maven lifecycle
     -   There are 6 scopes
         -   compile
                 -   In compile scope the dependencies are available at compile, test, run time.
@@ -198,6 +198,35 @@ mvn archetype:generate -DgroupId=com.abhishek -DartifactId=hellomaven -Darchetyp
                     then we can use this scope.
         -   import
                 -   This dependency is used on pom based projects and not on jar or war based projects.
+
+    Dependency Mangement
+        -   Sometimes what happens is that, different modules use differnt versions of same type of dependency.
+            It becomes hectic to manage differnt versions
+        -   So to avoid this dependency management tag is used like below, and is added in the parent pom
+        -   <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                        <version>4.4</version>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+
+            <dependencies>
+                <dependency>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+
+        -   In this we define the version of the dependency we want to use.
+        -   Then remove the version in the dependencies version defined separately in the parent pom, like above.
+        -   And in the child modules we can omit the version tag, and then the child modules will use the
+            same version of dependency.
+        -   But, if the version is not removed from the child module then, the child module will override the
+            dependency version that is declared in the parent pom.
 
 
 
