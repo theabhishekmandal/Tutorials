@@ -252,6 +252,50 @@ mvn archetype:generate -DgroupId=com.abhishek -DartifactId=hellomaven -Darchetyp
         -   In this we define the version and configuration of plugin that we want to use.
         -   Now remove the versions and configurations from the plugins of the child modules.
 
+    Build Portability
+        -   When deploying to different environments, one can easily run the application in different environments
+            with no to little configuration changes.
+        -   Maven allows build portability using profiles
+        -   Eg. like in dev environment the application will connect to a different database, whereas in different
+            environment it will be different.
+        -   So by using profiles like dev, test, prod. maven will pick different environment specific properties
+            like connecting to database etc
+        -   package structure for profiles is src/man/profiles/ where we will have below folders that will contain
+            environment specific application.properties
+            -   dev
+            -   test
+            -   prod
+        -   How to use profiles using maven
+            -   After creating application.properties in each of the env folder. Go to the pom.xml file and add like
+                this
+            -    <profiles>
+                    <profile>
+                        <id>dev</id>
+                        <properties>
+                            <build.profile.id>dev</build.profile.id>
+                        </properties>
+                        <build>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/profiles/dev</directory>
+                                </resource>
+                            </resources>
+                        </build>
+                    </profile>
+                </profiles>
+
+            -   Here profiles tag will contain number of profile you want to add. So for test
+                env you can add a profile tag just under the profiles tag.
+            -   Each profile is identified with a unique id in our case it is "dev".
+            -   And properties tag containing the build.profile.id which points to the folder where
+                we will store all the env specific configuration.
+            -   And in the build tag, under resources tag we have the directory which denotes the
+                actual folder location where our properties are present.
+            -   To activate the profile using maven type.
+                mvn clean install -P dev
+                -   here -P denotes which profile we want to activate, in our case it is dev.
+            -   After the jar file is created, if you unzip the contents then application.properties
+                of dev will be present.
 
 
 
