@@ -297,6 +297,44 @@ mvn archetype:generate -DgroupId=com.abhishek -DartifactId=hellomaven -Darchetyp
             -   After the jar file is created, if you unzip the contents then application.properties
                 of dev will be present.
 
+    Using Jacoco plugin for code coverage
+        -   Add the following plugin inside your pom.xml to download the jacoco plugin.
+        -   <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.6</version>
+            </plugin>
+        -   Now there are two steps to run the jacoco plugin.
+            -   First initialising the jacoco plugin so as to make it ready to generate the report.
+            -   Second will be running the goal which will actually generate the report on our tests.
+        -   Since there will be two parts in running the jacoco plugin, we will define it under.
+            executions tag
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>
+                                prepare-agent
+                            </goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>generatereport</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            -   In the first goal tag we are preparing the jacoco agent using the prepare-agent goal.
+            -   Since prepare-agent is not associated with any maven phase, then this will run during maven
+                initialisation phase i.e even before the code is compiled.
+            -   Second goal tag we are actually generating the report, this goal is having the test phase
+                meaning, after all the tests are run then this will generate the report
+            -   after this run
+                -   mvn clean verify
+                -   verify is the phase in maven that runs and checks the results of tests.
+            -   Now to check the report go to the target directory and then go to site directory,
+                after that open the index.html in browser to see the reports of test coverage.
 
 
 
