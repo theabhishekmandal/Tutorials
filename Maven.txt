@@ -336,6 +336,38 @@ mvn archetype:generate -DgroupId=com.abhishek -DartifactId=hellomaven -Darchetyp
             -   Now to check the report go to the target directory and then go to site directory,
                 after that open the index.html in browser to see the reports of test coverage.
 
+    Problems with Traditional Spring
+        -   We have different types of Spring modules such as core, mvc, dao, orm which can be configured
+            either through xml or annotations based processing
+        -   But when building a project we may face problems such as
+            -   Module availability
+                -   Each of the above modules should be present for our application by defining them in
+                    maven pom.xml
+            -   Version compatibility
+                -   And need to be ensure that these modules should be compatible at runtime
+            -   Deployment
+                -   Application deployment should be smooth as possible.
+        -   Spring Boot allows to solve all the above problems
+        -   Spring Boot Features
+            -   AutoConfiguration
+                -   Spring boot does the autoconfiguration for us so we don't need to write xml or java based
+                    configurations. For example in mvc, spring boot automatically configures DispatcherServlet
+            -   Spring Boot Starters
+                -   They help in solving issues related to Module Availability and Version Compatibility
+                -   Every Spring Boot project will have spring-boot-starter-parent. This will have all the
+                    version information about the different spring modules.
+                -   For creating web based projects use spring-boot-starter-web. For handling orm based
+                    projects use spring-boot-starter-jpa.
+                -   All the version information is handled by spring-boot-starter-parent whereas all the
+                    dependencies are pulled throught spring-boot-starter-web or spring-boot-starter-test
+            -   Embedded Servlet Container
+                -   No need configure external server, Spring boot automatically provides built in embedded
+                    server i.e Tomcat
+            -   Spring Boot Actuators
+                -   Providing different types of health checks for the application such as autoconfig,
+                    mappings, info, health and metrics.
+
+
 
 
 
