@@ -1,0 +1,41 @@
+In terminal if you want to stop a running command
+- ctrl + c
+
+In terminal if you want to close the shell
+- ctrl + d
+
+To autocomplete suggestions
+- tab
+
+To go to the begining of the command
+- ctrl + a
+
+To go to the end of the command
+- ctrl + e
+
+To go forward in the command
+- alt + f
+
+To go backward in the command
+- alt + b
+
+To search for history
+- history or press ctrl + r to search backwards
+
+To go back from reverse search to original cursor position
+- ctrl + g
+
+To clear the screen
+- ctrl + l
+
+To cut to the end of the line
+- ctrl + k
+
+To cut to the begnining of the line
+- ctrl + u
+
+To paste the line that was cut
+- ctrl + y
+
+To kill word by word backwards
+- ctrl + w
