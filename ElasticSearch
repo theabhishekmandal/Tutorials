@@ -1,0 +1,492 @@
+ElasticSearch
+-	OpenSource Analytics and full Search Engine
+
+Usages
+	-	Query and analyze structured data
+	-	Analyse application logs and system metrics
+	-	Application performance management
+	-	Send events to elasticsearch
+	-	Forecast future values with machine learning
+	-	Anomality detection
+
+How does ElasticSearch work?
+	-	Data is stored as documents. Similar to rows in SQL.
+	-	A document's data is separated into fields. Similar to
+		columns in relational databases.
+	-	Written in Java, build on Apache lucene.
+	-	Easy to use, and highly scalable.
+
+ElasticSearch Stack
+	-	Kibana
+		-	An analytics and visualisation platform.
+	-	Beats
+		-	A collection of data shippers that send data to Elastisearch or Logstash.
+	-	LogsStash
+		-	A data processing pipeline
+	-	X-Pack
+		-	Adds additional features to Elasticsearch and kibana.
+
+		
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ Elasticsearch security features have been automatically configured!
+✅ Authentication is enabled and cluster connections are encrypted.
+
+ℹ️  Password for the elastic user (reset with `bin/elasticsearch-reset-password -u elastic`):
+  LkcIgwxHsiO-ch7OfdL*
+
+ℹ️  HTTP CA certificate SHA-256 fingerprint:
+  6a0b4a461f8bfcec1efddfcb0561b1acd62004bd40bf87d61b2285c0078380b8
+
+ℹ️  Configure Kibana to use this cluster:
+• Run Kibana and click the configuration link in the terminal when Kibana starts.
+• Copy the following enrollment token and paste it into Kibana in your browser (valid for the next 30 minutes):
+  eyJ2ZXIiOiI4LjYuMiIsImFkciI6WyIxOTIuMTY4LjAuNTY6OTIwMCJdLCJmZ3IiOiI2YTBiNGE0NjFmOGJmY2VjMWVmZGRmY2IwNTYxYjFhY2Q2MjAwNGJkNDBiZjg3ZDYxYjIyODVjMDA3ODM4MGI4Iiwia2V5IjoiT0htNERJY0IzY21Xd1pKRmJpYm06U1JGTms3MWhTbU9keno4U1VLVHhaUSJ9
+
+ℹ️  Configure other nodes to join this cluster:
+• On this node:
+  ⁃ Create an enrollment token with `bin/elasticsearch-create-enrollment-token -s node`.
+  ⁃ Uncomment the transport.host setting at the end of config/elasticsearch.yml.
+  ⁃ Restart Elasticsearch.
+• On other nodes:
+  ⁃ Start Elasticsearch with `bin/elasticsearch --enrollment-token <token>`, using the enrollment token that you generated.
+
+
+elastic password - LjqY3C+_53nh01LRrP0H
+
+reset password - bin/elasticsearch-reset-password -u elastic
+eyJ2ZXIiOiI4LjYuMiIsImFkciI6WyIxOTIuMTY4LjAuNTU6OTIwMCJdLCJmZ3IiOiJhZTc2ZTU3NzU0NzMzZGQ2ZDllYTY3OTA5MzQ2ZGE1ZTMwOTFhNDIyNTkwOGI0MTAwY2JkOWRkNzc4NDI3YTQ4Iiwia2V5IjoianpuUjlZWUJrOUVtUGNGZFNjbHo6bzVvS04yS2RUZGU5T3hMWUpybnFXQSJ9
+kibana enrollment token - 
+new enrolment token for kibana - bin/elasticsearch-create-enrollment-token --scope kibana
+
+
+
+Basic Architecture Summary
+	-	Nodes store the data that we add to elasticsearch.
+	-	A cluster is a collection of nodes.
+	-	Data is stored as documents, which are Json objects.
+	-	Documents are grouped together with indices.
+
+
+Sharding and Scalability
+	-	Sharding is a way to divide indices into smaller pieces.
+	-	Each piece is called as shard.
+	-	Sharding is done at the index level and not cluster or node level.
+	-	The main purpose is to horizontally scale the data volume.
+
+Let's dive deeper
+	-	A shard is an independent index... kind of.
+	-	Each shard is an Apache lucene index.
+	-	An ElasticSearch index consists of one or more Lucene indices.
+	-	A shard has no predefined size; it grows as documents are
+		added to it.
+	-	A shard may store up to 2 billion documents.
+The purpose of Sharding
+	-	Mainly be able to store more documents
+	-	To easier fit large indices onto nodes.
+	-	Improved performance.
+		-	Parallelization of queries increases the throughput of an index.
+
+Configuring the number of shards
+	-	An index contains single shard by default. See the pri field when running GET _cat/indices?v&expand_wildcards=all
+	-	Also, while creating an index, it creates by default 1 primary shard and 1 replica shard.
+		If elastic is running on single node only, then the replica shard is unassigned. In that case
+		cluster health will be yellow instead of green.
+	-	Indices in elasticSearch < 7.0.0 were created with five shards
+		-	This often led to oversharding.
+	-	Increase the number of shards using the Split API in new elasticSearch.
+	-	Reduce the number of shards with the Shrink API.
+	-	Once you set the number of shards for an index in ElasticSearch, you cannot change them. You will need to create a new index with the desired number of shards, and depending on your use case, you may want then to transfer the data to the new index
+
+Introduction to Replication.
+	-	What happens if a node's hard drive fails?
+	-	Hardware can fail at any given time, so we need to handle that somehow
+	-	ElasticSearch supports fault tolerance using replication.
+	-	Replication is supported natively and enabled by default.
+
+
+How does replication work?
+	-	Replication is configured at index level.
+	-	Replication works by creating copies of shards, referred to as replica shards.
+	-	A shard that has been replicated, is called primary shard.
+	-	A primary shard and its replica shards are referred to as 
+		a replication group.
+	-	Replica shards are complete copy of a shard.
+	-	A replica shard can serve search requests, exactly like its primary shard.
+	-	The number of replicas can be configured at index creation.
+	-	Example :
+		-	Primary Shard A, Replica A1, Replica A2 <- Replication Group A
+		-	Primary Shard B, Replica B1, Replica B2 <- Replication Group B
+		- The above two collectively form an index.
+	- But what if entire disk stops working and we loose all of the data?
+	- To avoid this replica shards are not created on the same node of their primary shard.
+	- For example Node A will contain primary Shard A, replica shard B1 and replica shard B2.
+	And Node B will contain primary Shard B, replica shard A1 and replica shard A2.
+
+Snapshots
+	-	Elasticsearch supports taking snapshots as backups.
+	-	Snapshots can be used to restore to a given point in time.
+	-	Snapshots can be taken at the index level, or for the entire cluster.
+	-	Use snapshots as backups and replication for high availability(and performance).
+	-	Replications work on live data, but what if live data gets corrupted. In that case we need to rollback in which
+	snapshots provides the backups.
+	-	Replications also helps in increasing the throughput.
+		If there are multiple requests then elasticsearch will delegate the requests to the shards.
+
+
+Adding more nodes to cluster
+	-	Sharding enables us to scale an index data volume
+	-	But eventually we will need to add additional nodes
+	-	Also, replication requires at least two nodes.
+	-	We will try to add two more nodes to our cluster. This can be done in local setup only.
+	-	To make nodes first try to extract the elastic archive. If you want to create two nodes then
+		make two copies. Make sure not to copy the existing node's directory. Because it contains data used by that node.
+	-	For each node extract the archive and create.
+	-	Now rename each node by going to /config/applcation.yml.
+	-	First time whenever we start a node we need to specify the enrollment token. Using enrollment token helps elasticsearch to use the configurations that we don't need to do.
+	-	First go to the existing node folder and create the enrollment token using
+		bin/elasticsearch-create-enrollment-token -s node
+	-	copy the enrollment token and then start the other nodes using this command
+		bin/elasticsearch --enrollment-token <enrollment-token>
+	Word of Caution
+		-	After adding third node, atlease two nodes are required to run the cluster
+			-	If two nodes are lost, the cluster cannot elect a master node.
+		-	If you want to run a single node moving forward, don't add the third node.
+			-	Alternatively you can start fresh with a single-node cluster afterwards.
+
+
+Overview of Node roles
+	-	Master-eligible
+		-	The node may be elected as the cluster's master node.
+		-	A master node is responsible for creating and deleting indices, among others.
+		-	A node with this role will not automatically become the master node.
+			-	unless there are no other master-eligible nodes
+		-	May be used for having dedicated master nodes. Because Master node should not be busy in doing other things, such as serving requests. Also, if master node is doing other things then there may be high cpu consumption, memory consumption.
+			-	Useful for large clusters
+
+	-	Data Node
+		-	Enables a node to store data.
+		-	Storing data includes performing queries related to that data, such as search queries
+		-	For relatively small clusters, this role is almost always enabled.
+		-	Useful for having dedicated master master nodes.
+		-	Used as part of configuring a dedicated master node.
+
+	-	Ingest Nodes
+		-	Enables a node to run ingest pipelines.
+		-	Ingest pipelines are a series of steps(processors) that are performed when indexing documents.
+			-	Processors may manipulate documents, eg. resolving an IP to lat/lon
+		-	A simplified version of Logstash, directly within Elasticsearch.
+		-	This role is mainly useful for having dedicated ingest nodes.
+
+	-	Machine Learning Node
+		-	node.ml identifies a node as a machine learning node.
+			-	This lets the node run machine learning jobs
+		-	xpack.ml.enabled enables or disables the machine learning API for the node.
+		-	Useful for running ML jobs that don't affect other tasks.
+
+	-	Coordination Node
+		-	Coordination refers to the distribution of queries and the aggregation of results.
+		-	Useful for coordination-only nodes(for large clusters)
+		-	Configured by disabling all other roles.
+
+	-	Voting Node
+		-	Rarely used, and you almost certainly won't use it either.
+		-	A node with this role, will participate in the voting for a new master node.
+		-	The node cannot be elected as the master node itself, though
+		-	Only used for large clusters.
+
+
+Creating and Deleting Indices
+	-	DELETE /pages
+	-	PUT /products
+	-	PUT /products
+		{
+			"settings" : {
+				"number_of_shards" : 2,
+				"number_of_replicas" : 2
+			}
+		}
+	-	Here there will be only 1 primary shard and the other two replcia shards will be identical to
+		its primary shard. Thereby forming a replication group. so when data is inserted it will be inserted in the 3 shards.
+	-	Modifying new indices requires reindexing docs to new index.	
+
+Inserting Docs
+	-	POST /products/_doc
+		{
+			"name" : "Coffee Maker",
+			"price": 64,
+			"in_stock": 10
+		}
+		-	This will insert a document with random generated index and will be copied to the 3 shards.
+	-	PUT /products/_doc/100
+		{
+			"name" : "Toaster",
+			"price": 55,
+			"in_stock": 4
+		}
+		-	Since we have inserted the first doc, now to add more docs we will use PUT instead of POST.
+		-	Also here we are specifying the id value as 100.
+
+Retrieving Docs
+	-	GET /products/_doc/100
+		-	Here if the document exists then, found flag will be true and the doc will show under _source flag.
+		-	Otherwise, found flag will be false and _source flag will not be present.
+
+
+Updating Docs
+	-	POST /products/_update/100
+		{
+			"doc" : {
+				"in_stock" : 3
+			}
+		}
+	-	Adding fields to the same doc can be done using the same above query
+	-	POST /products/_update/100
+		{
+			"doc" : {
+				"tags" : ["electronics"]
+			}
+		}
+
+Documents are immutable
+	-	Elasticsearch documents are immutable (!)
+	-	We actually replaced documents
+	-	The update API did some things for us, making it look like we updated documents
+	-	The Update API is simpler and saves some network traffic.
+
+How the update API works
+	-	The current document is retrieved.
+	-	The field values are changed.
+	-	The existing document is replaced with modified document.
+	-	We could do the exact same thing at application level.
+
+
+Scripted Updates
+	-	POST /products/_update/100
+		{
+			"script" : {
+				"source" : "ctx._source.in_stock--"
+			}
+		}
+		-	subracts the instock value by 1.
+	-	POST /products/_update/100
+		{
+			"scripts" : {
+				"source" : "ctx._source.in_stock = 10"
+			}
+		}
+
+	-	POST /products/_update/100
+		{
+			"script" : {
+				"source" : "ctx._source.in_stock -= params.quantity",
+				"params" : {
+					"quantity" : 4
+				}
+			}
+		}
+
+	-	POST /products/_update/100
+		{
+			"script" : {
+				"source": """
+					if (ctx._source.in_stock > 0) {
+						ctx._source.in_stock--;
+					}
+				"""
+			}
+		}
+
+
+Upserting Documents
+	-	If the document does not already exist, the contents of the upsert element are inserted as a new document. If the document exists, the script is executed.
+	-	POST /products/_update/101
+		{
+			"script" : {
+				"source" : "ctx._source.in_stock++"
+			},
+			"upsert" : {
+				"name" : "Blender",
+				"price" : 399,
+				"in_stock" : 5
+			}
+		}
+	-	If the document is not present then the result keyword will have created as value, otherwise it will have updated as value
+
+
+Replacing Documents
+	-	PUT /products/_doc/101
+		{
+			"name" : "Toaster",
+			"price": 79,
+			"in_stock": 4
+		}
+
+
+Deleting Documents
+	-	DELETE /products/_doc/101
+
+
+Introduction to Routing
+	-	How does ElasticSearch know where to store documents ?
+	-	How are documents found once they have been indexed ?
+	-	The answer is routing 
+	-	Routing is the process of resolving a shard for a document.
+	-	It is resolved by using the formula.
+		-	shard_num = hash(_routing) % num_primary_shards.
+	-	Same formula is used when retrieving/updating/deleting the document.
+	-	When you index a document, Elasticsearch will determine which shard the document should be routed to for indexing. Where the default value of _routing is _id.
+	-	When using custom routing, in that case _routing value is different.
+
+
+
+Custom Routing
+	-	Routing is 100% transparent when using ElasticSearch.
+	-	This makes Elasticsearch easier to use and learn.
+	-	It is possible to customize routing, though, for various purposes.
+	-	The default routing strategy ensures that the documents are distributed evenly.
+
+Intresting fact
+	-	As we know we cannot change the number of shards after the index has been created. This is because
+		routing formula depends on the number of shards.
+
+
+How ElasticSearch Reads data
+	-	A read request is recieved and handled by coordinating node.
+	-	Routing is used to resolve the document's replication group.
+	-	ARS is used to send the query to the best available shard.
+		-	ARS is short for Adaptive Replica Selection.
+		-	ARS helps reduce query response time.
+		-	ARS is essentially an intelligent load balancer.
+	-	The coordinating node collects the response and sends it to the client.
+
+
+How ElasticSearch Writes Data
+	-	Write operations are sent to primary shards.
+	-	The primary shard forwards the operation to replica shards.
+	-	Primary terms and sequence numbers are used to recover from failures.
+	-	Primary term
+		-	Counter denoting how many times a Primary shard has been elected.
+		-	Initially the counter is set to 1, when a failure occurs and a new primary shard
+			has been elected. In that case, counter is increment to 2.
+	-	Sequence Number
+		-	Counter for each write operation and is only incremented by Primary shard.
+	-	Global and local checkpoints help speed up the recovery process.
+	-	Global Checkpoint
+		-	Checkpoint for every replication group. Basically minimum sequence number that is common in replication group.
+	-	Local CheckPoint
+		-	Checkpoint for every replica shard. Basically maximum sequence number out of all the replica shards.
+	-	Primary term and sequence numbers are available within responses.
+
+Introduction to Versioning
+	-	Not a revision history of documents.
+	-	Elasticsearch stores an _version metadata field with every document.
+		-	The value is an integer
+		-	It is incremented by one when modifying a document.
+		-	The value is retained for 60 seconds when deleting a document.
+			-	Configured with the index.gc_deletes setting.
+		-	The _version field is returned when retrieving documents.
+
+	-	Types of Versioning
+		-	The default versioning type is called internal versioning.
+		-	There is also an external versioning type 
+			-	Useful when versions are maintained outside of ElasticSearch.
+			-	Eg: When documents are also stored in RDBMS
+
+What is the point of Versioning?
+	-	You can tell how many times document has been modified.
+		-	Probably not that useful
+
+	-	Versioning is hardly used anymore, and is mostly a thing from the past.
+	-	It was previously the way to do optimistic concurrency control.
+		-	Now there is better way using primary terms and sequence numbers.
+	-	This _version field is being used for clusters running old versions.
+
+
+Optimistic Concurrency Control
+	-	Prevent overwriting documents inadvertently due to concurrent operations.
+	-	There are many scenarios in which this can happen
+		-	handling concurrent visitors for web application.
+
+
+How do we handle failures?
+	-	Handle the situation at application level.
+		-	Retreive the document again.
+		-	Use _primary_term and _seq_no for new update request.
+		-	Remember to perform any calculations that use field values again.
+
+
+Summary Concurrency Control
+	-	Sending write requests to ElasticSearch concurrently may overwrite changes
+		made by other concurrent processes.
+	-	Traditionally, the _version field was used to prevent this
+	-	Today, we use the _primary_term and _seq_no fields.
+	-	Elasticsearch will reject a write operation if it contains the wrong primary term or sequence number
+		-	This should be handled at application level.
+
+
+
+Update by query
+	-	Problem - To decrease the in_stock field by one for every products.
+	-	POST /products/update_by_query
+		{
+			"script" : {
+				"source" : "ctx._source.in_stock--"
+			}
+			"query" : {
+				"match_all" : {}
+			}
+		}
+	-	This will update the stock for all products. Here we are specifying constraints using
+		query keyword.
+
+	-	If a document has been modified since taking the snapshot, the query is aborted.
+		-	This is checked using document's primary term and sequence number.
+	-	To count version conflicts instead of aborting the the query, the conflicts option
+		can be set to proceed.
+
+
+Delete by query
+	-	To delete all the documents
+	-	POST /products/delete_by_query
+		{
+			"query" : {
+				"match_all" : {
+
+				}
+			}
+		}
+
+
+Batch Processing
+	-	POST /_bulk
+		{ "index" : { "_index" : "products", "_id" : 200}}
+		{"name" : "Espresso Machine", "price" : 199, "in_stock" : 5}
+		{"create" : {"_index" : "products", "_id" : 201}}
+		{"name" : "Milk Frother", "price" : 149, "in_stock" : 14}
+
+	-	here index and create is a type of action that we want to perform. Diff is that create action will give an error if the document already exists, but index will replace the document if it already exists. If doc is not present in that case it will be inserted for both the action type
+	-	2nd and 4th line describes the doc information that we want to store.
+
+	-	POST /_bulk
+		{ "update" : { "_index" : "products", "_id" : 200}}
+		{ "doc" : {"price" : 129}}
+		{ "delete" : { "_index" : "products", "_id" : 200}}
+
+	-	Or you can use this if all the operations are on same index
+		POST /products/_bulk
+		{ "update" : {"_id" : 200}}
+		{ "doc" : {"price" : 129}}
+		{ "delete" : {"_id" : 200}}
+
+
+
+Analysis
+	-	Sometimes referred to as text analysis
+	-	Applicable to text field/values.
+	-	Text values are analyzed when indexing documents.
+	-	The result is stored in data structures that are efficient for searching etc.
+	-	The _source object is not used when searching for documents
+		-	It contains the exact values specified when indexing documents.
+
+
