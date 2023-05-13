@@ -651,6 +651,189 @@ Introduction to Mapping
             -   Dynamic Mapping     -   ElasticSearch will generate field mapping automatically.   
 
 
+Overview of DataTypes
+    -   Some of the basic ElasticSearch data types.
+    -   object, integer, long, boolean, double, text, short, float and date.
+    -   There are some specialised data types such as ip data types to store ip addresses.
+    
+    -   Object datatype
+        -   Used for any JSON object
+        -   Objects may be nested
+        -   Mapped using properties parameter
+        -   {
+                "name: : "Coffee maker",
+                "price" :  64.2,
+                "in_stock" : 10,
+                "is_active" : true,
+                "manufacturer" : {
+                    "name" : "Nespresso",
+                    "country" : "Switzerland"
+                }
+            }
+
+        -   PUT /products
+            {
+                "mappings" : {
+                    "properties" : {
+                        "name" : {"type" : "text"},
+                        "price" : {"type" : "double"},
+                        "in_stock": {"type" : "short"},
+                        "is_active" : {"type" : "boolean"},
+                        "manufacturer" : {
+                            "properties" : {
+                                "name" : {"type" : "text"},
+                                "country" : {"type" : "text"}
+                            }
+                        }
+                    }
+                }
+            }
+
+        -   Objects are not stored as objects in Apache lucene.
+            -   Objects are transformed to ensure that we can index any valid json.
+            -   In particular, objects are flattened.
+        -   The above example will be flattened as below
+            -   {
+                    "name" : "Coffee maker",
+                    "price" : 64.2,
+                    "in_stock" : 10,
+                    "is_active" : true,
+                    "manufacturer.name" : "Nespresso",
+                    "manufacturer.country" : "Switzerland"
+                }
+
+        -   Now what if there are array of fields. In that case it will create something like this.
+            -   {
+                    "manufacturer.name" : ["Nespresso", "Nescafe"],
+                    "manufacturer.country" : ["Switzerland", "India"]
+                }
+            -   It becomes difficult, to search documents like this. When running the below query, elastic won't be able to diffrentiate
+                which manufacturer country belongs to which manufacturer name
+            -   Query : Match products where manufacturere.name == "Nescafe" AND manufacturing.country == "India".
+
+
+    -   nested data type
+    	-   Similar to the object data type, but maintains objects relationship.
+        -   Useful when indexing array of objects.
+        -   Enables us to query objects independently. meaning object values are not mixed together as in the above example of array objects.
+            -   Must use the nested query.
+            -   {
+                    "name" : "Coffee maker",
+                    "reviews" : [
+                        {
+                            "rating" : 5.0,
+                            "author" : "Average Joe",
+                            "description" : "Haven't slept for days... Amazing!"
+                        },
+                        {
+                            "rating" : 3.5,
+                            "author" : "John Doe",
+                            "description" : "Could be better"
+                        }
+                    ]
+                }
+
+            -   PUT /products
+                {
+                    "mappings" : {
+                        "properties" : {
+                            "name" : {"type" : "text"},
+                            "reviews": {"type" : "nested"}
+                        }
+                    }
+                }
+            -   Query : Match products where reviews.author == "John Doe" AND reviews.rating >= 4.0
+            -   This query now works correctly because the objects are stored independently and the query works correctly.
+        -   nested objects are stored as hidden documents.
+        -   Suppose that we index a document containing product info. and that document has a reviews array field which have ten review objects inside it.
+            This would cause to index 11 documents into lucene, one for the product and 10 for the reviews.
+
+
+    -   Keyword datatype
+        -   Used for exact matching of values.
+        -   Typically used for filtering, aggregations and sorting.
+        -   E.g. searching for articles with the status of "PUBLISHED".
+        -   for full text searches, use the text datatype instead. full text searches are the searches that do not require exact matches.
+            -   Eg. searching the body text of an article 
+
+    -	How the keyword datatype works
+    	-	How keyword fields are analyzed
+    		-	keyword fields are analyzed with keyword analyzer
+    		-	The keyword analyzer is a no-op analyzer
+    			-	It outputs the unmodified string as a single token.
+                -   This token is then placed into the inverted index.
+    			-	POST /_analyze
+    				{
+    					"text" : "2 guys walk into a bar, but the third... DUCKS! :-)",
+    					"analyzer" : "keyword"
+    				}
+    			-	Response
+    				{
+                      "tokens": [
+                        {
+                          "token": "2 guys walk into a bar, but the third... DUCKS! :-)",
+                          "start_offset": 0,
+                          "end_offset": 51,
+                          "type": "word",
+                          "position": 0
+                        }
+                      ]
+                    }
+
+                -   As you can see the string is untouched and returned as it is as a single token. If symbols were to be stripped out, for instance, 
+                    we wouldn't be able to perform exact searches.
+                -   Why, because the values within the inverted index (in the form of term/tokens) would then differ from the string that was provided with the indexed document.
+                    Searching for the original value would therefore yield no results.
+                -   what it would look like if we if save the full text as a token/term.
+                    TERM                                    Document1   Document2   Document3
+                    2 ducks walk around the lake            X
+                    2 guys walk into a bar, but                         X
+                    the third... DUCKS! :-)                     
+                    2 guys went into a bar.                                         X
+
+                -   This is unlike the text fields where the standard analyzer is used.
+                -   Also keyword analayzer does not removes symbols and lower case letters.
+                -   Much more realistic example when keyword analyzer is used is to search emailAddresses
+            -   keyword fields are used for exact matching, aggregations and sorting.
+
+Introduction to type coercion
+	-	Data types are inspected when indexing documents.
+		-	They are validated, and some invalid values are rejected.
+		-	E.g trying to index an object for a text field.
+	-	Sometimes, providing the wrong data type is okay
+	-	Eg.-
+		-	PUT /coercion_test/_doc/1
+			{
+				"price" : 7.4
+			}
+		-	PUT /coercion_test/doc/2
+			{
+				"price": "7.4"
+			}
+		-	PUT /coercion_test/doc/3
+			{
+				"price" : "7.4m"
+			}
+		-	GET /coercion_test/_doc/2
+		-	coercion_test index is yet not created. It will be created when the first document is inserted.
+		-	When the document is inserted then a dynamic mapping of datatype is created for the price field. In this case it will be float.
+		-	What ElasticSearch did was to inspect the value that we supplied in order to figure out its datatype. In this case we supplied a floating point number, so the float data type was used within the mapping.
+		-	In our second doc a floating point number is represented but in the form of string. If we run the query then it will also indexed. We can see that for the same price field in first doc we are passing a float value and in another float value as a string.
+		-	This is where type coercion comes into the picture.
+		-	Elasticsearch first resolves the data type that was supplied for a given field. In case there is a mapping 
+                    
+
+
+
+
+
+
+
+
+            
+   
+
+
 
 
 
