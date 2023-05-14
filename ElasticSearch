@@ -820,7 +820,96 @@ Introduction to type coercion
 		-	What ElasticSearch did was to inspect the value that we supplied in order to figure out its datatype. In this case we supplied a floating point number, so the float data type was used within the mapping.
 		-	In our second doc a floating point number is represented but in the form of string. If we run the query then it will also indexed. We can see that for the same price field in first doc we are passing a float value and in another float value as a string.
 		-	This is where type coercion comes into the picture.
-		-	Elasticsearch first resolves the data type that was supplied for a given field. In case there is a mapping 
+		-	Elasticsearch first resolves the data type that was supplied for a given field. In case there is a mapping then the two data types are compared.
+		-	Since we supplied a string for a numeric data type, ElasticSearch inspects the string value.
+		-	If it contains a numeric value and only numeric value Elasticsearch will convert the string to
+			the correct data type, being float in this example.
+		-	The result is that a string of 7.4 is converted into the floating point number 7.4 instead, and the document is indexed as if we had supplied a number in the first place.
+		-	Now, if we try to pass a string that cannot be converted to float like the third document above, in that case it will give exception that it cannot be converted.
+		-	Also if you try to get the second document it will return string "7.4" and not float 7.4 .
+			But, as mentioned above that ElasticSearch coerces the value into a float instead of a string. So, why this behaviour ?
+		-	The reason is that the "_source" key contains the original values that we indexed.
+		-	UnderStanding the _source object
+			-	Contains the values that are supplied at index time in our case it is("7.4")
+				-	Not the values that are indexed(converted to 7.4 via coercion)
+			-	Search queries use indexed values, not _source values.
+				-	BKD trees, inverted indices etc.
+				-	Elasticsearch searches the data structure used by Apache Lucene to store the field values.
+				-	In case of text fields, that would be an inverted index.
+				-	In this example, the value has been converted into a float, even though we see a string.
+				-	Within apache lucene the value is stored as a numeric value and not a string.
+			-	_source does not reflect how values are indexed
+				-	Keep coercion in mind if you use values from _source.
+		-	Coercion is not used for dynamic mapping.
+			-	Supplying "7.4" for a new field will create a text mapping.
+		-	Always try to use the correct datatype.
+			-	Especially the first time you index a field.
+		-	Disabling coercion is a matter of preference.
+			-	It is enabled by default.
+
+
+
+Introduction to arrays
+	-	There is no such thing as array data type.
+	-	Any field may contain zero or more values.
+		-	No configuration or mapping needed.
+		-	Simply supply an array when indexing document.
+		-	POST /products/_doc
+			{
+				"tags" : "Smartphone"
+			}
+			POST /products/_doc
+			{
+				"tags" : ["Smartphone", "Electronics"]
+			}
+		-	The above two queries are valid and can be run in any order.
+		-	The mapping that will be created is as follows
+			{
+				"products" : {
+					"mapping" : {
+						"properties" : {
+							"tags" : {
+								"type" : "text"
+							}
+						}
+					}
+				}
+			}
+		-	As we can see there is no sign of array data type in the mapping.
+		-	So how does this get stored ?
+		-	In the case of text fields, the strings are simply concatenated before being analyzed and
+			the resulting token is stored within the inverted index as normal.
+		-	POST /_analyze
+			{
+				"text" : ["Strings are simply", "merged together"],
+				"analyzer" : "standard"
+			}
+			POST /_analyze
+			{
+				"text" : ["Strings",  "are", "simply", "merged",  "together"],
+				"analyzer" : "standard"
+			}
+		-	If your run the above two analyze api then you would see that it is returning the same result.
+			It means that the text values in array are stored as a same string.
+		-	When storing the strings are concatenated with a space in between, because otherwise
+			the word simply and merged would end up within the same token.
+		-	In case of non-text fields the values are not anlayzed, multiple values are just stored within
+			the appropriate data structure within Apache lucene.
+
+
+		-	Constraints
+			-	Array values should be of the same datatype. This means you cannot mix strings and integers.
+			-	You can mix datatypes together only if passed datatype can be coerced with the mapping datatype.
+			-	This is true for simple datatypes but not for the other ones such as objects.
+				[{"name" : "Coffee Maker"}, {"name" : "Toaster"}, false]
+				-	here false cannot be converted to object type.
+			-	Coercion only works for fields that are already mapped.
+				-	If creating a field mapping with dynamic mapping, an array must contain the same data type. Mixed data types are not allowed until the mapping is present. Mixed data type array can be passed after the mapping is created.
+
+		-	Nested arrays
+			-	Arrays may contain nested arrays
+			-	Arrays are flattened during indexing.
+			-	[1, [2, 3]] becomes [1, 2, 3].
                     
 
 
