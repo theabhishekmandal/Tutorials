@@ -910,6 +910,60 @@ Introduction to arrays
 			-	Arrays may contain nested arrays
 			-	Arrays are flattened during indexing.
 			-	[1, [2, 3]] becomes [1, 2, 3].
+
+Adding Explicit Mappings
+	-	PUT /reviews
+		{
+			"mappings" : {
+				"properties" : {
+					"rating" : {
+						"type" : "float"
+					},
+					"content" : {
+						"type" : "text"
+					},
+					"product_id" : {
+						"type" : "integer"
+					},
+					"author" : {
+						"properties" : {
+							"first_name" : {
+								"type" : "text"
+							},
+							"last_name" : {
+								"type" : "text"
+							},
+							"email" : {
+								"type" : "keyword"
+							}
+						}
+					}
+				}
+			}
+		}
+	-	Now adding documents
+		PUT /reviews/_doc/1
+		{
+			"rating" : 5.0,
+			"content" : "Outstanding course! Bo really taught me a lot about ElasticSearch!",
+			"product_id" : 123,
+			"author" : {
+				"first_name" : "John",
+				"last_name" : "Doe",
+				"email" : "johndoe123@example.com"
+			}
+		}
+
+	-	This above document will get inserted using the respective mappings.
+	-	But if we change the value of email field from string to an {} denoting an object. Then elasticSearch won't be able to coerce the value.
+	-	Also, instead of string if we change the field value of email to integer then elasticSearch will be able to coerce the value.
+
+Retrieving Mappings
+	-	To retrieve a value of given index. Just query the mapping api
+	-	GET /reviews/_mapping
+	-	To retrieve the mapping of a particular field, 
+	-	GET /reviews/_mapping/field/content  where content is the field name.
+	-	GET /reviews/_mapping/field/author.email where author.email is nested field.
                     
 
 
