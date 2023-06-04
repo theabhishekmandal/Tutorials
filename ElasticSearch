@@ -966,10 +966,345 @@ Retrieving Mappings
 	-	GET /reviews/_mapping/field/author.email where author.email is nested field.
                     
 
+Using dot notations in field names
+	-	the above explicit mapping of author object can be done in a simpler way
+		-	PUT /reviews
+		{
+			"mappings" : {
+				"properties" : {
+					"rating" : {
+						"type" : "float"
+					},
+					"content" : {
+						"type" : "text"
+					},
+					"product_id" : {
+						"type" : "integer"
+					},
+					"author.firstname" : {
+						"type" : "text"
+					},
+					"author.lastName" : {
+						"type" : "text"
+					},
+					"author.email" : {
+						"type" : "keyword"
+					}
+				}
+			}
+		}
+
+Adding mappings to existing indices
+	-	To add new mappings to existing index, we will be using the mapping api.
+	-	Since we are using the mapping api we don't need to add "mapping" keyword in the request body
+	-	Instead just use the properties to define mapping for a new field.
+	-	PUT /reviews/_mapping
+		{
+			"properties" : {
+				"created_at" : {
+					"type" : "date"
+				}
+			}
+		}
+	-	GET /reviews/_mapping
+
+Introduction to Dates
+	-	Specified in one of three ways.
+		-	Specially formatted strings.
+		-	Milliseconds since the epoch (long)
+		-	Seconds since the epoch(integer)
+	-	Epoch refers to 1st of January of 1970
+	-	Custom date formats are supported.
+
+	-	Default Behaviour of Date fields
+		-	Three supported formats:
+			-	A date without time
+			-	A date with time
+			-	Milliseconds since the epoch (long)
+
+		-	In case of string timesamps UTC timezone is assumed if nothing is specified.
+		-	If we supply a string value for the date value, the date needs to be in ISO 8601 specification
+	-	How date fields are stored
+		-	Stored internally as milliseconds since the epoch (long)
+		-	Any valid value that you supply at the index time is converted to a long value internally.
+		-	Dates are converted to UTC timezone
+		-	The same date conversion also happen for date queries, too. This date will be converted to long before the search process begins.
+	-	Example
+		when only date is specified for date field. Elastic Search assumes time to be midnight of that particular day and will convert them to milliseconds since the epoch.
+		PUT /reviews/_doc/2
+		{
+			"rating" : 4.5,
+			"content" : "Not bad. Not bad at all",
+			"product_id" : 123,
+			"created_at" : "2015-03-27",
+			"author" : {
+				"first_name" : "Average",
+				"last_name" : "Joe",
+				"email" : "avgjoe@example.com"
+			}
+		}
+
+
+		when date with time is specified for date field. Here the date is specified in utc timezone
+		using the z.
+		PUT /reviews/_doc/3
+		{
+			"rating" : 4.5,
+			"content" : "Not bad. Not bad at all",
+			"product_id" : 123,
+			"created_at" : "2015-03-27T13:07:41Z",
+			"author" : {
+				"first_name" : "Average",
+				"last_name" : "Joe",
+				"email" : "avgjoe@example.com"
+			}
+		}
+
+		when date with time is specified for date field.
+		PUT /reviews/_doc/4
+		{
+			"rating" : 4.5,
+			"content" : "Not bad. Not bad at all",
+			"product_id" : 123,
+			"created_at" : "2015-03-28T09:21:51+01:00",
+			"author" : {
+				"first_name" : "Average",
+				"last_name" : "Joe",
+				"email" : "avgjoe@example.com"
+			}
+		}
+
+		when date with time is specified but in epoch. Here the epoch should be in milliseconds since epoch
+		PUT /reviews/_doc/5
+		{
+			"rating" : 4.5,
+			"content" : "Not bad. Not bad at all",
+			"product_id" : 123,
+			"created_at" : "1436011284000",
+			"author" : {
+				"first_name" : "Average",
+				"last_name" : "Joe",
+				"email" : "avgjoe@example.com"
+			}
+		}
+
+
+		To get all the queries
+		The values are the exact values that we specified when indexing the documents, and they do not
+		represent how dates are stored for searching
+		GET /reviews/_search
+		{
+			"query" : {
+				"match_all" : {}
+			}
+		}
+
+Handling Missing Fields.
+	-	what happens when we don't provide field values during indexing a document.
+	-	Fields can have zero or more values by default it means all fields are optional.
+	-	You can leave a field out when indexing documents.
+	-	E.g unlike relational databases where you need to allow null values.
+	-	Some integrity checks need to be done at the application level
+		-	E.g having required fields.
+	-	Adding a field mapping does not make a field required. You can leave the field value optional with mapping present.
+	-	Searches automatically handle missing fields. In other words, you don't need to actively handle
+		if some documents may have left fields out.
+
+
+Overview of Mapping Paramters
+	-	format parameter
+		-	Used to customize the format for the date fields
+		-	Default date format is is recommended for use.
+			-	"strict_date_optional_time || epoch_millis"
+		-	Using Java's DateFormatter syntax
+			-	Eg "dd/MM/yyyy"
+		-	Using built-in formats
+			-	E.g "epoch_seconds"
+		-	Eg:
+			PUT /sales
+			{
+				"mappings" : {
+					"properties" : {
+						"purchased_at" : {
+							"type" : "date",
+							"format" : "dd/MM/yyyy"
+						}
+					}
+				}
+			} 
+
+
+			PUT /sales
+			{
+				"mappings" : {
+					"properties" : {
+						"purchased_at" : {
+							"type" : "date",
+							"format" : "epoch_second"
+						}
+					}
+				}
+			}
+	-	properties parameter
+		-	Defines nested fields for object and nested fields.
+		-	Examples
+			PUT /sales
+			{
+				"mappings" : {
+					"properties" : {
+						"sold_by" : {
+							"properties" : {
+								"name" : {
+									"type" : "text"
+								}
+							}
+						}
+					}
+				}
+			}
+
+	-	coerce parameter
+		-	Used to enable or disable coercion values (enabled by default)
+		-	PUT /sales
+			{
+				"mappings" : {
+					"properties" : {
+						"amount" : {
+							"type" : "float",
+							"coerce" : false
+						}
+					}
+				}
+			}
+		-	It is possible to enable and disable coercion at index level. So you don't have to specify
+			coercion parameter for every parameter/field.
+			PUT /sales
+			{
+				"settings" : {
+					"index.mapping.coerce" : false
+				},
+				"mappings" : {
+					"properties" : {
+						"amount" : {
+							"type" : "float",
+							"coerce": true
+						}
+					}
+				}
+			}
+			-	Here coerce is disabled at index level. but gets overidden by the amount field
 
 
 
+	-	Introduction to doc_values
+		-	Elasticsearch makes use of several data structures.
+			-	No single datastructure serves all purposes.
+		-	Inverted indices are excellent for searching text.
+			-	They don't perform well for many other data access patterns.
+		-	"Doc values" is another data structure used by Apache lucene.
+			-	Optimized for a different data access pattern (document-> terms)
+			-	inverted index does not perform well in case of sorting or aggregating results because the access pattern is different. Instead doc_values perform well in this case.
+			-	Instead of looking terms and finding the documents that contain them, we need to look up the document and find its terms for a field.
 
+		-	doc_values is opposite of inverted index, i.e. an uninverted inverted index.
+		-	Used for sorting, aggregations and scripting.
+		-	It is an additional data structure and not a replacement for inverted index. Both can be applied to a field at the same time.
+		-	Elasticsearch automatically queries the appropriate data structure.
+		-	Disabling doc_values 
+			-	Set the doc_values parameter to false to save disk space.
+			-	Storing data in multiple data structures effectively duplicates data with the purpose of fast retrieval
+				-	Also slightly increasing the index throughput
+			-	Only disable doc values if you won't use aggregations, sorting and scripting.
+			-	Particulary useful for large indices, typically not worth it for small ones.
+			-	Cannot be changed without reindexing documents into new index.
+				-	Use with caution, and try to anticipate how fields will be queried
+			-	Example
+				PUT /sales
+				{
+					"mappings" : {
+						"properties" : {
+							"buyer_email" : {
+								"type" : "keyword",
+								"doc_values": false
+							}
+						}
+					}
+				}
+	-	Norms parmeter
+		-	Normalization factors used for relevance scoring.
+		-	Often we don't just want to filter results, but also rank them based on how well they match a given query. Think of search results on Google, for instance.
+		-	Norms can be disabled to save disk space. Because they also take a lot of disk space like doc_values.
+			-	Useful for fields that won't be used for relevance scoring.
+			-	If disabled then also fields can be used for filtering and aggregations.
+			-	Example
+				PUT /sales
+				{
+					"mappings" : {
+						"properties" : {
+							"tags" : {
+								"type" : "text",
+								"norms" : false
+							}
+						}
+					}
+				}
+	-	index parameter
+		-	Disables indexing for a field.
+		-	Values are still stored within _source object. It is just that the field value won't be part for the data structures used for searching.
+		-	Useful if you won't use a field for search queries
+		-	Saves disk space and slightly improves indexing throughtput.
+		-	Often used for time series data
+		-	Fields with indexing disabled can still be used for aggregations.
+
+	-	null_value parameter
+		-	null values cannot be indexed or searched.
+		-	Use this parameter to replace NULL values with another value so that the field value can be searched.
+		-	Only works for explicit NULL values. It won't work for example array field with empty array.
+		-	The replacement value must be of the same data type as the field.
+		-	Does not affect the value stored within _source.
+		-	PUT /sales
+			{
+				"mappings" : {
+					"properties" : {
+						"paramter_id" : {
+							"type" : "keyword",
+							"null_value" : "NULL"
+						}
+					}
+				}
+			}
+	-	copy_to parameter
+		-	Used to copy multiple field values into a "group field". If a doc has two field first_name and last_name and we want to query for the full name. In that case we can copy the two fields into a single field full_name using copy_to.
+		-	Simply specify the name of the target field as the value.
+		-	E.g first_name and last_name -> full_name
+		-	Values are copied, not terms/tokens
+			-	The analyzer of the target field is used for the values.
+		-	The target field is not a part of _source
+		-	Example
+			PUT /sales
+			{
+				"mappings" : {
+					"properties" : {
+						"first_name": {
+							"type" : "text",
+							"copy_to" : "full_name"
+						},
+						"last_name" : {
+							"type" : "text",
+							"copy_to" : "full_name"
+						},
+						"full_name" : {
+							"type" : "text"
+						}
+					}
+				}
+			}
+
+			POST /sales/_doc
+			{
+				"first_name" : "John",
+				"last_name" : "Doe"
+			}
 
 
 
