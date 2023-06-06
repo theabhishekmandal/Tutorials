@@ -226,6 +226,7 @@ Inserting Docs
 		}
 		-	Since we have inserted the first doc, now to add more docs we will use PUT instead of POST.
 		-	Also here we are specifying the id value as 100.
+		-	POST is ususally used for automatic id creation wheras for PUT add new doc by providing an id.
 
 Retrieving Docs
 	-	GET /products/_doc/100
@@ -1349,6 +1350,215 @@ Updating Existing Mappings
 		-	The Update By Query API can be used to reclaim disk space.
 		-	The solution is to reindex documents into a new index.
 
+
+Reindex documents with the Reindex API
+	-	GET /reviews/_mappings
+		-	this will retreive the mappings for the given index.
+	-	copy the mappings object and then paste it to the query
+	-	changing the keyword datatype from long to keyword.
+	-	PUT /reviews_new/
+		{
+		  "mappings": {
+		    "properties": {
+		      "author": {
+		        "properties": {
+		          "email": {
+		            "type": "text",
+		            "fields": {
+		              "keyword": {
+		                "type": "keyword",
+		                "ignore_above": 256
+		              }
+		            }
+		          },
+		          "first_name": {
+		            "type": "text",
+		            "fields": {
+		              "keyword": {
+		                "type": "keyword",
+		                "ignore_above": 256
+		              }
+		            }
+		          },
+		          "last_name": {
+		            "type": "text",
+		            "fields": {
+		              "keyword": {
+		                "type": "keyword",
+		                "ignore_above": 256
+		              }
+		            }
+		          }
+		        }
+		      },
+		      "content": {
+		        "type": "text",
+		        "fields": {
+		          "keyword": {
+		            "type": "keyword",
+		            "ignore_above": 256
+		          }
+		        }
+		      },
+		      "created_at": {
+		        "type": "date"
+		      },
+		      "product_id": {
+		        "type": "keyword"
+		      },
+		      "rating": {
+		        "type": "float"
+		      }
+		    }
+		  }
+		}
+
+	-	Now to transfer the documents to the new index ElasticSearch exposes a api called as 
+		_reindex api.
+	-	POST /_reindex
+		{
+			"source" : {
+				"index" : "reviews"
+			},
+			"dest" : {
+				"index" : "reviews_new"
+			}
+		}
+	-	Now to search for documents
+		GET /reviews_new/_search
+		{
+		  "query" : {
+		    "match_all" : {}
+		  }
+		}
+	-	But, if we check the docs in the new index we will see that, product_id is present in the form of long or integer and not string as we added the keyword datatype.
+	-	_source datatypes
+		-	The data type doesn't reflect how the values are indexed.
+		-	_source contains the field original values supplied at index time. In our case it was integer or long. Us changing the data type does not affect the "_source" object to be modified.
+		-	It's common to use _source values from search results.
+			-	You would probably expect a string for a keyword field.
+		-	We can modify the _source value while reindexing.
+		-	Alternatively this can be handled at application level.
+		-	To update the datatype for the fields inside the source object a script can be written. But before that docs needs to be deleted from the new index.
+		-	POST /reviews_new/_delete_by_query
+			{
+				"query" : {
+					"match_all" : {
+
+					}
+				}
+			}
+		-	POST /_reindex
+			{
+				"source" : {
+					"index" : "reviews"
+				},
+				"dest" : {
+					"index" : "reviews_new"
+				}
+				"script" : {
+					"source" : """
+						if (ctx._source.product_id != null) {
+							ctx._source.product_id = ctx._source.product_id.toString();
+						}
+					"""
+				}
+			}
+		-	If now if you check then the fields inside the _source object has converted from integer/long to string.
+
+	-	Reindex documents matching a query
+		-	POST /_reindex
+			{
+				"source" : {
+					"index" : "reviews",
+					"query" : {
+						"match_all" : {}
+					}
+				},
+				"dest" : {
+					"index": "reviews_new"
+				}
+			}
+	-	Reindex only positive reviews
+		-	POST /_reindex
+			{
+				"source" : {
+					"index" : "reviews",
+					"query" : {
+						"range" : {
+							"rating" : {
+								"gte" : 4.0
+							}
+						}
+					}
+				},
+				"dest" : {
+					"index" : "reviews_new"
+				}
+			}
+	-	Removing fields
+		-	Field mappings cannot be deleted.
+		-	Fields can be left out when indexing documents.
+		-	Maybe we want to reclaim disk space used by a field.
+			-	Already indexed values still take up disk space.
+			-	For large data sets, this maybe worthwhile
+				-	Assuming that we no longer need the values.
+		-	This can be done using the source filtering.
+		-	POST /_reindex
+			{
+				"source" : {
+					"index" : "reviews",
+					"_source" : ["content", "created_at", "rating"]
+				},
+				"dest" : {
+					"index" : "reviews_new"
+				}
+			}
+		-	By specifying an array of field names, only those fields are included for each document when they are indexed into the destination index. In other words, any fields that you leave out will not be reindexed.
+	-	Changing a field's name
+		-	POST /_reindex
+			{
+				"source" : {
+					"index" : "reviews"
+				}
+				"dest" : {
+					"index" : "reviews_new"
+				},
+				"script" : {
+					"source" : """
+						#Rename "content" field to "comment"
+						ctx._source.comment = ctx._source.remove("content");
+					"""
+				}
+			}
+	-	Ignore reviews with ratings below 4.0
+		-	POST /_reindex
+			{
+				"source" : {
+					"index" : "reviews"
+				},
+				"dest" : {
+					"index" : "reviews_new"
+				},
+				"script" : {
+					"source" : """
+						if (ctx._source.rating < 4.0) {
+							ctx.op = "noop"; # Can also be set to "delete"
+						}
+					"""
+				}
+			}
+		-	In case of noop document will not be indexed to the destination index
+		-	In case of delete document will get deleted from the destination index.
+			-	The destination index might not be empty as in our example. So the document may be present in the destination index. It will get deleted if used "delete".
+
+-	Batching and Throttling
+	-	The Reindex API performs operations in batches
+		-	Just like the Update by Query and Delete by Query APIs.
+		-	It uses the scroll API internally.
+		-	This is how millions of documents can be reindexed efficiently.
+	-	Throttling can be configured to limit the perfomance impact.
+	-	Check documentation if you need to reindex lots of documents.
 
 
             
