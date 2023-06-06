@@ -1306,6 +1306,49 @@ Overview of Mapping Paramters
 				"last_name" : "Doe"
 			}
 
+Updating Existing Mappings
+	-	Suppose that product IDs may now include letters.
+	-	We need to change the product_id field's data type to either text or keyword
+		-	We won't use the field for full-text searches
+		-	We will use it for filtering, so the keyword datatype is ideal.
+	-	If we try to update the mapping which is already present using the below query then we get the following message.
+		-	PUT /reviews/_mapping
+			{
+				"properties" : {
+					"product_id" : {
+						"type" : "keyword"
+					}
+				}
+			}
+		-	It will give illegal_argument_exception.
+	-	Limitations for updating mappings
+		-	Generally, Elasticsearch field mappings cannot be changed.
+		-	We can add new field mappings, but that's about it.
+		-	A few mapping parameters can be updated for existing mappings.
+		-	Example
+			PUT /reviews/mapping
+			{
+				"properties" : {
+					"author" : {
+						"properties" : {
+							"email" : {
+								"type" : "keyword",
+								"ignore_above" : 256
+							}
+						}
+					}
+				}
+			}
+			The above query will work which will update the existing field mapping for email. It will update such that email greater than 256 letters will be ignored and won't be stored or be a part for searching.
+		-	Being able to update mappings would be problematic for existing documents
+			-	Text values have already been analyzed, for instance
+			-	Changing between some datatypes would require rebuilding the whole data structure.
+		-	Even for an empty index, we cannot update a mapping.
+		-	Field mappings also cannot be removed.
+			-	Just leave out the field when indexing documents.
+		-	The Update By Query API can be used to reclaim disk space.
+		-	The solution is to reindex documents into a new index.
+
 
 
             
