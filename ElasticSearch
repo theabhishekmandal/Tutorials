@@ -68,6 +68,10 @@ Basic Architecture Summary
 	-	Documents are grouped together with indices.
 
 
+What is index in elasticSearch?
+	-	An index is a logical namespace that holds a collection of documents with similar characteristics. It is similar to a database table in a traditional relational database management system(RDBMS).
+
+
 Sharding and Scalability
 	-	Sharding is a way to divide indices into smaller pieces.
 	-	Each piece is called as shard.
@@ -443,7 +447,7 @@ Update by query
 
 	-	If a document has been modified since taking the snapshot, the query is aborted.
 		-	This is checked using document's primary term and sequence number.
-	-	To count version conflicts instead of aborting the the query, the conflicts option
+	-	To count version conflicts instead of aborting the query, the conflicts option
 		can be set to proceed.
 
 
@@ -637,7 +641,7 @@ UnderStanding Inverted Indices
             -   Now a table will be created for the sorted tokens(observed in the documents) and the documents.
             -   Each entry in the table will show whether this token is present in a given document or not.
 
-            -   This is an example showing that how inverted indices are create for a single text field present in the document.
+            -   This is an example showing that how inverted indices are created for a single text field present in the document.
             -   What happens if there are multiple text fields in the document? In that case inverted index is created for each text field.
             -   So, if a document has two text field then 2 inverted indices are created.
         -   One inverted index per text field
@@ -1115,7 +1119,7 @@ Handling Missing Fields.
 Overview of Mapping Paramters
 	-	format parameter
 		-	Used to customize the format for the date fields
-		-	Default date format is is recommended for use.
+		-	Default date format is recommended for use.
 			-	"strict_date_optional_time || epoch_millis"
 		-	Using Java's DateFormatter syntax
 			-	Eg "dd/MM/yyyy"
@@ -1559,6 +1563,206 @@ Reindex documents with the Reindex API
 		-	This is how millions of documents can be reindexed efficiently.
 	-	Throttling can be configured to limit the perfomance impact.
 	-	Check documentation if you need to reindex lots of documents.
+
+
+-	Defining Field Aliases
+	-	Field names can be changed while reindexing documents
+		-	But it is not worth it for lot of documents for the sake of renaming.
+	-	An alternative is to use field aliases
+		-	Doesn't require documents to be reindexed
+		-	Aliases can be used within queries
+		-	Aliases are defined with a field mapping.
+		-	Example, here comment alias is used for field name content
+			PUT /reviews/_mapping
+			{
+				"properties" : {
+					"comment" : {
+						"type" : "alias",
+						"path" : "content"
+					}
+				}
+			}
+-	Updating field aliases
+	-	Field aliases can actually be updated
+		-	Only its target field, though
+	-	Simply perform a mapping update with new path value.
+	-	This is possible since aliases don't affect indexing.
+		-	It's a query level construct used when parsing queries, whether it is search or index request.
+
+
+-	Index aliases
+	-	Similar to field aliases, Elasticsearch also supports index aliases
+	-	Typically used when dealing with large data volumes.
+
+
+-	Multi Field Mappings
+	-	A field can be mapped in multiple ways. For instance a "text" field maybe mapped as a 
+		"keyword" field at the same time.
+	-	Lets say you want to do search query on a particular field in that case you should use "text" as a type for the field. Also, you want to perform aggregations on that same field. But, aggregations don't work with "text" type. They work with only "keyword" field
+	-	Before MultiField Mapping example
+		-	PUT /multi_field_test
+			{
+				"mappings" : {
+					"properties" : {
+						"description" : {
+							"type" : "text"
+						},
+						"ingredients" : {
+							"type" : "text"
+						}
+					}
+				}
+			}
+		-	Here we want to perform search and aggregations on the "ingredients" field. Currently only search will work since it has only "text" as type.
+		-	After modifying to use both search and aggregations.
+		-	PUT /multi_field_test
+			{
+				"mappings" : {
+					"properties" : {
+						"description" : {
+							"type" : "text"
+						},
+						"ingredients" : {
+							"type" : "text"
+							"fields" : {
+								"keyword" : {
+									"type" : "keyword"
+								}
+							}
+						}
+					}
+				}
+			}
+		-	Here we have added additional multi field mapping for the field "ingredients". This above request adds the "ingredients.keyword" keyword multi-field, which can be used for sorting and aggregations.
+
+		-	POST /multi_field_test/_doc
+			{
+				"description" : "To make spaghetti, carbonara, you first need to...",
+				"ingredients" : ["Spaghetti", "Bacon", "Eggs"]
+			}
+
+		-	This creates inverted index for three fields description, ingredients and ingredients.keyword.
+		-	description and ingredients are analyzed and converted into inverted index using standard analyzer
+		-	ingredients.keyword is converted into inverted index using keyword analyzer where input is unmodified. Input tokens/terms remain as it is which can then be used in aggregations or sorting.
+
+		-	Now to do exact match on keyword type we will run the following query.
+			-	GET /multi_field_test/_search
+				{
+					"query" : {
+						"term" : {
+							"ingredients.keyword": "Spaghetti"
+						}
+					}
+				}
+
+-	Index Templates
+	-	Index templates specify settings and mappings.
+	-	They are applied to indices that match one or more patterns
+	-	Patterns may include wildcards(*) 
+	-	Index templates take effect only when creating new indices
+	-	When an index is created either manually or through indexing a document - the template
+		settings are used as a basis for creating the index.
+	-	We can add a new index template by using the Index template API together with the PUT HTTP verb.
+	-	The request path is "_template" followed by the name of index template.
+	-	Example
+		-	PUT /_template/access-logs
+			{
+				"mappings" : {
+					"properties" : {
+						"@timestamp" : {
+							"type" : "date"
+						},
+						"url.original" : {
+							"type" : "keyword"
+						},
+						"http.request.referrer" : {
+							"type" : "keyword"
+						},
+						"http.response.status_code" : {
+							"type" : long
+						}
+					}
+				}
+			}
+		-	This is a template with name "access-logs" because it is going to define mappings for indices storing HTTP access logs
+		-	Only one important part is missing i.e for which indices this template should be applied to.
+		-	Those should be defined within an "index_patterns" parameters consisting of array of strings.
+		-	PUT /_template/access-logs
+			{
+				"index_patterns" : ["access-log-*"],
+				"mappings" : {
+					"properties" : {
+						"@timestamp" : {
+							"type" : "date"
+						},
+						"url.original" : {
+							"type" : "keyword"
+						},
+						"http.request.referrer" : {
+							"type" : "keyword"
+						},
+						"http.response.status_code" : {
+							"type" : long
+						}
+					}
+				}
+			}
+		-	index patterns are essentially index names where parts of them may be wild cards. You can also use exact names of the indices, but that probably defeats the purpose of using an index template.
+		-	Now what is the purpose of this asterisk?
+		-	Elasticsearch is often used to store time series data, which can be a lot of different things, just as long as the entries are stored chronologically.
+		-	For example, we could capture and store the hardware usage of servers every minute, or perhaps every second.
+		-	Or we could ping an api to store uptime information
+		-	So why to include wildcard in the index pattern?
+		-	Because time series data is often divided into multiple indices. How many depends on the data volume, so it could be per year, month, week, or day, for instance.
+		-	A common approach is to create one index per day for large data volumes
+
+	-	Apart from specifying mappings, an index template can also contain index settings. Let's specify the number of shards.
+	-	PUT /_template/access-logs
+			{
+				"index_patterns" : ["access-log-*"],
+				"settings" : {
+					"number_of_shards" : 2,
+					"index.mapping.coerce" : false 
+				}
+				"mappings" : {
+					"properties" : {
+						"@timestamp" : {
+							"type" : "date"
+						},
+						"url.original" : {
+							"type" : "keyword"
+						},
+						"http.request.referrer" : {
+							"type" : "keyword"
+						},
+						"http.response.status_code" : {
+							"type" : long
+						}
+					}
+				}
+			}
+	-	Now since index template is created, we will create an index that matches the index pattern of the template.
+	-	Specifically, an index to contain access logs for the 1st January, 2020.
+	-	PUT /access-logs-2020-01-01 to create the index
+	-	GET /access-logs-2020-01-01 to get the contents
+		-	Now the response will have all the fields defined using the index template with the necessary index settings
+	-	There is one case that, if while creating new index we specify the mappings or settings and the index name matches with the index pattern of the index template. Then settings defined in both will be merged together. In case of duplicates, the configuration from the create index request will take precedence and override the value specified in the index template.
+
+	-	Priorities of index templates
+		-	A new index may match multiple index templates
+		-	An order parameter can be used to define the priority of index templates
+			-	The value is simply an integer
+			-	Templates with lower values are merged first.
+
+	-	Updating an index template
+		-	An index template can be updated using the same command. Just specify the full the configuration that is to be updated
+		-	PUT /_template/access-logs
+			{
+				#Full configuration
+			}
+		-	An updation in index templates affects the new indices; existing indices that matched the index template are left untouched.
+
+	-	An index template can be retrieved and deleted using the same endpoint with the GET and DELETE verbs respectively.
 
 
             
