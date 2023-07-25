@@ -1764,6 +1764,41 @@ Reindex documents with the Reindex API
 
 	-	An index template can be retrieved and deleted using the same endpoint with the GET and DELETE verbs respectively.
 
+-	Introduction to ECS(Elastic Common Schemas)
+	-	A specification of common fields and how they should be mapped in Elasticsearch.
+	-	Before ECS, there was no cohesion between field names.
+	-	Ingesting logs from nginx would give different field names than Apache.
+		-	For instance, a Kibana dashboard needed to know which particular web server was being used because the field names were different at least while using filebeat modules.
+		-	There was really no standard, and so the fields were often named something along the lines of
+			"apache2.access.url" or "ngnix.access.url"
+		-	This was inconvenient because the data consumer such as kibana needed to know event source implementation.
+		-	However, once the access logs are parsed, it makes no difference if the web server that generated them is named Apache or ngnix.
+		-	Changing the webserver would cause all kinds of trouble all the way through ingestion pipeline because field names would then be different.
+		-	Therefore we want to keep the field names the same so that kibana doesn't need to know if events come from an Apache or ngnix web server.
+		-	It is pretty common to ingest data from number of sources at the same time. For instance we might want to collect data from a number of different services such as a Postgres database, Kafka ngnix, and perhaps a redis cluster.
+		-	We would probably process an event once per minute and we would need to store this timestamp within a field.
+		-	Instead of having each service potentially name this field differently, the ECS Specification states that it should be named @timestamp.
+		-	This means that no matter which kind of event you are dealing with, this should be the name when the event originated.
+		-	This makes it easier when consuming data perhaps through kibana because the name of the timestamp field is same regardless of the event source.
+	-	ECS means that common fields are named the same thing
+		-	E.g. timestamp
+		-	ECS was created to overcome the challenges of having different field names for the same things.
+	-	Use-case independent.
+		-	Naturally ECS is not related to web server logs
+	-	Groups of field are referred to as "field sets". This can be found in ECS documentation. Examples are Host fields, Log fields, Network fields etc.
+	
+
+-	Uses of ECS
+	-	In ECS, "documents" are referred to as events.
+		-	ECS doesn't provide fields for non-events(e.g products, employee name, salary etc)
+	-	Mostly useful for standard events.
+		-	e.g web server logs, operating system metrics, etc
+	-	ECS is automatically handled by Elastic Stack products.
+		-	Like for example FileBeat or MetricBeat which structures data according to ECS automatically.
+		-	If you use them, you often won't have to actively deal with ECS, because it has already been handled for you.
+	-	You might not need to use ECS, but it is good to know what it is.
+
+
 
             
    
