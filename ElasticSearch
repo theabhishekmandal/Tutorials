@@ -1799,6 +1799,61 @@ Reindex documents with the Reindex API
 	-	You might not need to use ECS, but it is good to know what it is.
 
 
+-	Introduction to Dynamic Mapping
+	-	POST /my-index/_doc
+		{
+			"tags" : ["computer", "electronics"],
+			"in_stock" : 4,
+			"created_at" : "2020/01/01 00:00:00"
+		}
+
+	-	creates a dynamic mapping as follows
+		{
+			"created_at" : {
+				"type" : "date",
+				"format" : "yyyy/MM/dd HH:mm:ss||yyyy/MM/dd||epoch_millis"
+			},
+			"in_stock" : {
+				"type" : "long"
+			},
+			"tags" : {
+				"type" : "text",
+				"fields" : {
+					"keyword" : {
+						"type" : "keyword",
+						"ignore_above" : 256
+					}
+				}
+			}
+		}
+	-	Here, everything looks simple mapping. But, for tags field it creates two types of mapping
+		"text" mapping which will be used for full text searches, while "keyword" mapping should be used for exact matches, aggregations and sorting
+	-	This is a default behaviour where it automatically creates the mapping. But it is not always be the best mapping. Since, it will cause optimization issues
+
+	-	Rules for creating dynamic mapping
+		json 			ElasticSearch
+		string 			One of the following
+						-	text field with keyword mapping
+						-	date field
+						-	(float or long field)
+
+		integer 		long
+		float 			float
+		boolean			boolean
+		object 			object
+		array 			Depends on the first non-null value.
+
+
+-	Configuring Dynamic Mapping
+	-	Setting dynamic to false
+		-	New fields are ignored, but not rejected.
+			-	They are not indexed, but still a part of _source
+		-	No inverted index is created for the last_name field.
+			-	Quering the field gives no results
+		-	Fields cannot be indexed without mapping.
+			-	When enabled dynamic mapping creates one before indexing values.
+
+
 
             
    
