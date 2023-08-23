@@ -1845,13 +1845,147 @@ Reindex documents with the Reindex API
 
 
 -	Configuring Dynamic Mapping
+	-	Creating mapping for only one field
+		PUT /people
+		{
+			"mappings" : {
+				"dynamic" : false,
+				"properties" : {
+					"first_name" : {
+						"type" : "text"
+					}
+				}
+			}
+		}
+
+	-	Adding a doc
+		POST /people/_doc 
+		{
+			"first_name" : "Bo",
+			"last_name" : "Anderson"
+		}
+	-	Getting the mapping information, this will retrieve the above mapping info
+		GET /people/_mapping
+
+	-	Searching the doc using first name, it will contain both first_name and last_name field.
+		GET /people/_search
+		{
+			"query" : {
+				"match" : {
+					"first_name" : "Bo"
+				}
+			}
+		}
+	-	Searching the doc using last name, response will be empty.
+		GET /people/_search
+		{
+			"query" : {
+				"match" : {
+					"last_name" : "Anderson"
+				}
+			}
+		}
 	-	Setting dynamic to false
 		-	New fields are ignored, but not rejected.
-			-	They are not indexed, but still a part of _source
+			-	They are not indexed, but still are part of _source
 		-	No inverted index is created for the last_name field.
 			-	Quering the field gives no results
 		-	Fields cannot be indexed without mapping.
 			-	When enabled dynamic mapping creates one before indexing values.
+		-	New fields must be mapped explicitly if dynamic is set to false, so that they are searchable.
+	-	Another Better way
+		-	setting dynamic to "strict"
+		-	Elasticsearch will reject unmapped fields
+			-	All fields must be mapped explicitly.
+			-	Similar to the behavior of relational databases.
+		-	Creating mapping with dynamic as strict
+			-	
+				PUT /people
+				{
+					"mappings" : {
+						"dynamic" : false,
+						"properties" : {
+							"first_name" : {
+								"type" : "text"
+							}
+						}
+					}
+				}
+		-	Now inserting doc with incomplete mapping will result in exception, saying lastname is not mapped
+			-	POST /people/_doc 
+				{
+					"first_name" : "Bo",
+					"last_name" : "Anderson"
+				}
+
+		-	Inheriting and overriding dynamic field
+			PUT /computers
+			{
+				"mappings" : {
+					"dynamic" : "strict",
+					"properties" : {
+						"name" : {
+							"type" : "text"
+						},
+						"specifications" : {
+							"properties" : {
+								"cpu" : {
+									"properties" : {
+										"name" : {
+											"type" : "text"
+										}
+									}
+								},
+								"other" : {
+									"dynamic" : true
+									"properties" : {...}
+								}
+							}
+						}
+					}
+				}
+			}
+			-	Here at the top level we defined dynamic as strict, so all the other field, name, specifications will also inherit this field. Any other field added while creating the doc
+			will result in exception
+			-	To override the value, other field has added the value of dynamic as true. In this case any extra field added under other field will have dynamic mapping and it will get indexed.
+
+
+-	Numeric Detection
+	-	PUT /computers
+		{
+			"mappings" : {
+				"numeric_detection" : true
+			}
+		}
+	-	POST /computers/_doc
+		{
+			"specifications" : {
+				"other" : {
+					"max_ram_gb" : "32",
+					"bluetooth" : "5.2"
+				}
+			}
+		}
+	-	When numeric detection is enabled, elasticsearch will check the contents of the string, to see if they only contain numeric values. In that case datatype of the field will be set to either float or long.
+
+-	Disabling Date detection
+	-	PUT /computers
+		{
+			"mappings" : {
+				"date_detection" : false
+			}
+		}
+	-	by default elastic search will check if a given string is of a given date format or not. If it is then it will create a date field
+	-	To keep the field in string format and not create a date object	set the date_detection to false.
+
+-	Configuring date detection formats
+	-	PUT /computers
+		{
+			"mappings" : {
+				"dynamic_date_formats" : ["dd-MM-yyyy"]
+			}
+		}	
+
 
 
 
