@@ -1984,8 +1984,7 @@ Reindex documents with the Reindex API
 			"mappings" : {
 				"dynamic_date_formats" : ["dd-MM-yyyy"]
 			}
-		}	
-
+		}
 
 
 
