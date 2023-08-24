@@ -20,7 +20,7 @@ ElasticSearch Stack
 	-	Kibana
 		-	An analytics and visualisation platform.
 	-	Beats
-		-	A collection of data shippers that send data to Elastisearch or Logstash.
+		-	A collection of data shippers that send data to Elasticsearch or Logstash.
 	-	LogsStash
 		-	A data processing pipeline
 	-	X-Pack
@@ -146,14 +146,14 @@ Adding more nodes to cluster
 	-	To make nodes first try to extract the elastic archive. If you want to create two nodes then
 		make two copies. Make sure not to copy the existing node's directory. Because it contains data used by that node.
 	-	For each node extract the archive and create.
-	-	Now rename each node by going to /config/applcation.yml.
+	-	Now rename each node by going to /config/application.yml.
 	-	First time whenever we start a node we need to specify the enrollment token. Using enrollment token helps elasticsearch to use the configurations that we don't need to do.
 	-	First go to the existing node folder and create the enrollment token using
 		bin/elasticsearch-create-enrollment-token -s node
 	-	copy the enrollment token and then start the other nodes using this command
 		bin/elasticsearch --enrollment-token <enrollment-token>
 	Word of Caution
-		-	After adding third node, atlease two nodes are required to run the cluster
+		-	After adding third node, atleast two nodes are required to run the cluster
 			-	If two nodes are lost, the cluster cannot elect a master node.
 		-	If you want to run a single node moving forward, don't add the third node.
 			-	Alternatively you can start fresh with a single-node cluster afterwards.
@@ -210,7 +210,7 @@ Creating and Deleting Indices
 				"number_of_replicas" : 2
 			}
 		}
-	-	Here there will be only 1 primary shard and the other two replcia shards will be identical to
+	-	Here there will be only 1 primary shard and the other two replica shards will be identical to
 		its primary shard. Thereby forming a replication group. so when data is inserted it will be inserted in the 3 shards.
 	-	Modifying new indices requires reindexing docs to new index.	
 
@@ -230,7 +230,7 @@ Inserting Docs
 		}
 		-	Since we have inserted the first doc, now to add more docs we will use PUT instead of POST.
 		-	Also here we are specifying the id value as 100.
-		-	POST is ususally used for automatic id creation wheras for PUT add new doc by providing an id.
+		-	POST is usually used for automatic id creation whereas for PUT add new doc by providing an id.
 
 Retrieving Docs
 	-	GET /products/_doc/100
@@ -273,7 +273,7 @@ Scripted Updates
 				"source" : "ctx._source.in_stock--"
 			}
 		}
-		-	subracts the instock value by 1.
+		-	subtracts the instock value by 1.
 	-	POST /products/_update/100
 		{
 			"scripts" : {
@@ -351,13 +351,13 @@ Custom Routing
 	-	It is possible to customize routing, though, for various purposes.
 	-	The default routing strategy ensures that the documents are distributed evenly.
 
-Intresting fact
+Interesting fact
 	-	As we know we cannot change the number of shards after the index has been created. This is because
 		routing formula depends on the number of shards.
 
 
 How ElasticSearch Reads data
-	-	A read request is recieved and handled by coordinating node.
+	-	A read request is received and handled by coordinating node.
 	-	Routing is used to resolve the document's replication group.
 	-	ARS is used to send the query to the best available shard.
 		-	ARS is short for Adaptive Replica Selection.
@@ -416,7 +416,7 @@ Optimistic Concurrency Control
 
 How do we handle failures?
 	-	Handle the situation at application level.
-		-	Retreive the document again.
+		-	Retrieve the document again.
 		-	Use _primary_term and _seq_no for new update request.
 		-	Remember to perform any calculations that use field values again.
 
@@ -493,7 +493,7 @@ Analysis
 	-	The result is stored in data structures that are efficient for searching etc.
 	-	The _source object is not used when searching for documents
 		-	It contains the exact values specified when indexing documents.
-	-	When a text value is indexed, a so-called analyzer is used to proces the text.
+	-	When a text value is indexed, a so-called analyzer is used to process the text.
 	-	An analyzer contains of three building blocks;
 		-	character filters
 		-	tokenizer
@@ -610,7 +610,7 @@ Analysis
           ]
         }
 
-    -   In above you can see elastic is smart enough to remove commas, exclaimation marks and whitespaces also. This is done because they provide no value
+    -   In above you can see elastic is smart enough to remove commas, exclamation marks and whitespaces also. This is done because they provide no value
         when performing text searches.
     -   Instead of specifying the analyzer we can also specify the parts of the analyzer like this but the result will be the same as mentioned above.
     -   POST /_analyze/
@@ -650,7 +650,7 @@ UnderStanding Inverted Indices
 Introduction to Mapping
     -   What is mapping?
         -   Defines the structure of documents and how they are stored. Eg. field and their datatypes
-        -   Similar to table schema in a relational databse.
+        -   Similar to table schema in a relational database.
         -   Types of Mapping
             -   Explicit Mapping    -   We define field mappings ourselves.
             -   Dynamic Mapping     -   ElasticSearch will generate field mapping automatically.   
@@ -714,7 +714,7 @@ Overview of DataTypes
                 }
             -   It becomes difficult, to search documents like this. When running the below query, elastic won't be able to diffrentiate
                 which manufacturer country belongs to which manufacturer name
-            -   Query : Match products where manufacturere.name == "Nescafe" AND manufacturing.country == "India".
+            -   Query : Match products where manufacturer.name == "Nescafe" AND manufacturing.country == "India".
 
 
     -   nested data type
@@ -898,7 +898,7 @@ Introduction to arrays
 			It means that the text values in array are stored as a same string.
 		-	When storing the strings are concatenated with a space in between, because otherwise
 			the word simply and merged would end up within the same token.
-		-	In case of non-text fields the values are not anlayzed, multiple values are just stored within
+		-	In case of non-text fields the values are not analyzed, multiple values are just stored within
 			the appropriate data structure within Apache lucene.
 
 
@@ -1027,7 +1027,7 @@ Introduction to Dates
 			-	A date with time
 			-	Milliseconds since the epoch (long)
 
-		-	In case of string timesamps UTC timezone is assumed if nothing is specified.
+		-	In case of string timestamps UTC timezone is assumed if nothing is specified.
 		-	If we supply a string value for the date value, the date needs to be in ISO 8601 specification
 	-	How date fields are stored
 		-	Stored internally as milliseconds since the epoch (long)
@@ -1116,7 +1116,7 @@ Handling Missing Fields.
 		if some documents may have left fields out.
 
 
-Overview of Mapping Paramters
+Overview of Mapping Parameters
 	-	format parameter
 		-	Used to customize the format for the date fields
 		-	Default date format is recommended for use.
@@ -1197,7 +1197,7 @@ Overview of Mapping Paramters
 					}
 				}
 			}
-			-	Here coerce is disabled at index level. but gets overidden by the amount field
+			-	Here coerce is disabled at index level. but gets overridden by the amount field
 
 
 
@@ -1220,7 +1220,7 @@ Overview of Mapping Paramters
 			-	Storing data in multiple data structures effectively duplicates data with the purpose of fast retrieval
 				-	Also slightly increasing the index throughput
 			-	Only disable doc values if you won't use aggregations, sorting and scripting.
-			-	Particulary useful for large indices, typically not worth it for small ones.
+			-	Particularly useful for large indices, typically not worth it for small ones.
 			-	Cannot be changed without reindexing documents into new index.
 				-	Use with caution, and try to anticipate how fields will be queried
 			-	Example
@@ -1235,7 +1235,7 @@ Overview of Mapping Paramters
 						}
 					}
 				}
-	-	Norms parmeter
+	-	Norms parameter
 		-	Normalization factors used for relevance scoring.
 		-	Often we don't just want to filter results, but also rank them based on how well they match a given query. Think of search results on Google, for instance.
 		-	Norms can be disabled to save disk space. Because they also take a lot of disk space like doc_values.
@@ -1257,7 +1257,7 @@ Overview of Mapping Paramters
 		-	Disables indexing for a field.
 		-	Values are still stored within _source object. It is just that the field value won't be part for the data structures used for searching.
 		-	Useful if you won't use a field for search queries
-		-	Saves disk space and slightly improves indexing throughtput.
+		-	Saves disk space and slightly improves indexing throughput.
 		-	Often used for time series data
 		-	Fields with indexing disabled can still be used for aggregations.
 
@@ -1357,7 +1357,7 @@ Updating Existing Mappings
 
 Reindex documents with the Reindex API
 	-	GET /reviews/_mappings
-		-	this will retreive the mappings for the given index.
+		-	this will retrieve the mappings for the given index.
 	-	copy the mappings object and then paste it to the query
 	-	changing the keyword datatype from long to keyword.
 	-	PUT /reviews_new/
@@ -1561,7 +1561,7 @@ Reindex documents with the Reindex API
 		-	Just like the Update by Query and Delete by Query APIs.
 		-	It uses the scroll API internally.
 		-	This is how millions of documents can be reindexed efficiently.
-	-	Throttling can be configured to limit the perfomance impact.
+	-	Throttling can be configured to limit the performance impact.
 	-	Check documentation if you need to reindex lots of documents.
 
 
@@ -1889,7 +1889,7 @@ Reindex documents with the Reindex API
 		-	New fields are ignored, but not rejected.
 			-	They are not indexed, but still are part of _source
 		-	No inverted index is created for the last_name field.
-			-	Quering the field gives no results
+			-	Querying the field gives no results
 		-	Fields cannot be indexed without mapping.
 			-	When enabled dynamic mapping creates one before indexing values.
 		-	New fields must be mapped explicitly if dynamic is set to false, so that they are searchable.
@@ -1985,6 +1985,388 @@ Reindex documents with the Reindex API
 				"dynamic_date_formats" : ["dd-MM-yyyy"]
 			}
 		}
+
+-   Dynamic Templates
+    -   Another way in which we can configure dynamic mapping is by using so called dynamic templates.
+    -   A dynamic templates consists of one or more conditions along with the mapping a field should use if it matches the conditions.
+    -   Dynamic templates are used when dynamic mapping is enabled and a new field is encountered without any existing mapping.
+    -   Dynamic templates are added within a key named "dynamic_templates" nested with "mappings" key.
+    -   each dynamic template should be an object within this array.
+    -   Within this object we add a key with the name of the dynamic template, which can be anything we want.
+    -   Next we want to define when this template should triggered i.e. a match condition.
+    -   Defining a match_mapping_type will define for which datatype will this template be applied.
+    -   Define a field mapping that should be used in case the condition matches. This is done inside the mapping parameter.
+
+    -   PUT /dynamic_template_test
+        {
+            "mappings" : {
+                "dynamic_templates" : [
+                    {
+                        "integers" : {
+                            "match_mapping_type" : "long",
+                            "mapping" : {
+                                "type" : "integer"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    -   POST /dynamic_template_test/_doc
+        {
+            "in_stock" : 123
+        }
+    -   We defined a condition that evaluates to true if the detected json data type is long in which case the field mapping will be
+        as specified.
+    -   In this example, this means that dynamic field mappings will not use the "long" data type as would otherwise be the default
+        behaviour, but the "integer" data type instead.
+
+    -   Another example would be mapping strings where by default ignore_above parameter is 256. This can be changed using dynamic_templates
+    -   PUT /test_index
+        {
+            "mappings" : {
+                "dynamic_templates" : [
+                    {
+                        "strings" : {
+                            "match_mapping_type" : "string",
+                            "mapping" : {
+                                "type" : "text",
+                                "fields" : {
+                                    "keyword" : {
+                                        "type" : "keyword",
+                                        "ignore_above" : 512
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    -   This example shows how string values can be mapped according to the default rules, with the exception that the "ignore_above"
+        parameter contains a value of 512 instead of 256.
+
+    -   match and unmatched parameters
+        -   used to specify conditions for the name of the field being evaluated.
+        -   field names must match the condition specified by the match parameter
+        -   unmatch field is used to exclude fields that were matched by the match parameter
+        -   Both parameters support pattern with wildcards(*)
+            -   Hardcoding specific field names wouldn't make any sense
+
+        -   Example
+            -   PUT /test_index
+                {
+                    "mappings" : {
+                        "dynamic_templates" : [
+                            {
+                                "strings_only_text" : {
+                                    "match_mapping_type" : "string",
+                                    "match" : "text_*",
+                                    "unmatch" : "*_keyword",
+                                    "mapping" : {
+                                        "type" : "text"
+                                    }
+                                }
+                            },
+                            {
+                                "strings_only_keyword" : {
+                                    "match_mapping_type" : "string",
+                                    "match" : "*_keyword",
+                                    "mapping" : {
+                                        "type" : "keyword"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+        -   In this example we have two dynamic templates. In situations where there are more than one, the templates are
+            processed in order and the first matching template wins.
+        -   The first template matches fields where the name begins with the string "text" and an underscore.
+        -   The unmatch parameter then filter out fields that end with an underscore and the string "keyword"
+        -   What this template does is therefore to map string values to "text" fields provided the field matches the match
+            parameter and does not match the unmatch parameter.
+
+        -   So, if you run this query
+            POST /test_index/_doc
+            {
+                "text_product_description" : "A description.",
+                "text_product_id_keyword" : "ABC-123"
+            }
+            -   The first field matched the above dynamic template mapping and the second one matched the second dynamic template mapping.
+            -   Mapping created is as follows
+                {
+                    "test_index": {
+                        "mappings" : {
+                            "properties" : {
+                                "text_product_description" : {
+                                    "type" : "text",
+                                },
+                                "text_product_id_keyword" : {
+                                    "type" : "keyword"
+                                }
+                            }
+                        }
+                    }
+                }
+        -   For more flexibility the match parameter provides with wildcards, we can set a parameter named "match_pattern" to "regex".
+        -   What it does is to adjust the behaviour of the "match" parameter to support regular expressions.
+        -   PUT /test_index
+            {
+                "mappings" : {
+                    "dynamic_templates" : [
+                        {
+                            "names" : {
+                                "match_mapping_type" : "string",
+                                "match" : "^[a-zA-Z]+_name$",
+                                "match_pattern" : "regex",
+                                "mapping" : {
+                                    "type" : "text"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        -   In this case the regular expression matches strings that end with "_name".
+        -   Adding a document with these three field names will therefore create the following mapping.
+            POST /test_index/doc
+            {
+                "first_name" : "John",
+                "middle_name" : "Edward",
+                "last_name" : "Doe"
+            }
+            {
+                "properties" : {
+                    "first_name" : {
+                        "type" : "text",
+                    },
+                    "middle_name" : {
+                        "type" : "text"
+                    },
+                    "middle_name" : {
+                        "type" : "text"
+                    }
+                }
+            }
+    -   path_match and path_unmatch parameters
+        -   These parameters evaluate the full field path
+            -   i.e not just the field names
+        -   This is a dot notation that you saw earlier
+            -   E.g name.first_name
+        -   wildcards are also supported.
+        -   Eg: here another mapping will be created which is "full_name"
+            -   PUT /test_index
+                {
+                    "mappings" : {
+                        "dynamic_templates" : [
+                            {
+                                "copy_to_full_name" : {
+                                    "match_mapping_type" : "string",
+                                    "path_match" : "employer.name.*",
+                                    "mapping" : {
+                                        "type" : "text",
+                                        "copy_to": "full_name"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+        -   Creating doc
+            -   POST /test_index/_doc
+                {
+                    "employer" : {
+                        "name" : {
+                            "first_name" : "John",
+                            "middle_name" : "Edward",
+                            "last_name" : "doe"
+                        }
+                    }
+                }
+        -   Mapping created is as follows
+            -   {
+                    "employer" : {
+                        "properties" : {
+                            "name" : {
+                                "properties" : {
+                                    "first_name" : {
+                                        "type" : "text",
+                                        "copy_to" : ["full_name"]
+                                    },
+                                    "middle_name" : {
+                                        "type" : "text",
+                                        "copy_to" : ["full_name"]
+                                    },
+                                    "middle_name" : {
+                                        "type" : "text",
+                                        "copy_to" : ["full_name"]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+        -   Within the "mapping" key of dynamic template, you can make use of two placeholders.
+            -   The first one is named "dynamic_type"
+            -   The "dynamic_type" placeholder is replaced with the data type that was detected by
+                dynamic mapping.
+            -   This template matches all datatypes and adds a mapping of that same data type.
+            -   If this placeholder was not there then we had to define dynamic template for each datatype, which is quite
+                inconvenient.
+            -   The purpose of this template is to set index parameter to false. The datatype is going to be the same as it
+                otherwise would be with dynamic mapping.
+            -   This particular example with disabling indexing could be used for time series data.
+
+            -   Ex:
+                -   PUT /test_index
+                {
+                    "mappings" : {
+                        "dynamic_templates" : [
+                            {
+                                "no_doc_values" : {
+                                    "match_mapping_type" : "*",
+                                    "mapping" : {
+                                        "type" : "{dynamic_type}",
+                                        "index" : false
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+
+                -   POST /test_index/_doc
+                    {
+                        "name" : "John Doe",
+                        "age" : 26
+                    }
+                -   Mapping created is as follows
+
+                    {
+                        "properties" : {
+                            "age" : {
+                                "type" : "long",
+                                "index" : false
+                            },
+                            "name" : {
+                                "type" : "text",
+                                "index" : false
+                            }
+                        }
+                    }
+
+    -   Index templates vs dynamic templates
+        -   Index templates apply mappings and index settings for matching indices
+            -   This happens when indices are created and their names match a pattern
+        -   Dynamic templates are evaluated when new fields are encountered
+            -   and dynamic mapping is enabled.
+            -   The specified field mapping is added the template's condition match
+        -   Index templates define fixed mappings; dynamic templates are dynamic
+
+
+
+    -   Stemming & Stop words
+        -   Stemming reduces word to their root form. Why this is required?. suppose we index the document with field value as "loved".
+            But we want to search with the value as love. In that case we won't be able to search the document.
+            -   E.g loved -> love and drinking -> drink
+            -   Stemming the given sentence "I loved drinking bottles of wine on last year's vacation" --> "I love drink bottl of wine last year vacat".
+            -   When stemming is done it may create some invalid words depending on the level of stemming applied.
+
+        -   Introduction to stop words
+            -   Words that are filtered out during text analysis
+                -   Common words such as "a", "the", "at", "of", "on", etc.
+            -   They provide little to no value for relevance scoring
+            -   Fairly common approach to remove such words.
+                -   Less common in Elasticsearch today than in the past.
+                    -   The relevance algorithm has been improved significantly.
+            -   Not removed by default and generally not recommended to remove such words.
+            -   Eg: removing stop words from the given sentence
+                -   "I loved drinking bottles of wine on last year's vacation" --> "I loved drinking bottles wine last year's vacation"
+
+
+    -   Analyzers and Search Queries
+        -   Analyzers are not only used when indexing "text" fields but also used for search queries as well.
+        -   One may ask how we are able to search for values that we index if they are changed during the analysis process,
+            like using stemming and stop words
+        -   Let's take an example
+            -   "I loved drinking bottles of wine on last year's vacation"
+            -   After analysing i.e converting to lower case and using stemming but skipping stop words.
+            -   ["i", "love", "drink", "bottl", "of", "wine", "on", "last", "year", "vacat"]
+            -   Now what will happen if we try to search for a given value
+                GET /stemming_test/_search
+                {
+                    "query" : {
+                        "match" : {
+                            "description" : "drinking"
+                        }
+                    }
+                }
+            -   When indexing the word "drinking" was stemmed to its root form. So, when doing the search query, it will be analysed
+                in the same way i.e "drinking" will be converted to word "drink"
+
+            -   So when the document is indexed, Elasticsearch inspects the mapping for the "description" field. It detects that
+                it's a "text" field, which means that it should be analyzed.
+            -   It then checks if the analyzer is configured for the field. If so that analyzer is used and otherwise the "standard"
+                analyzer is used.
+            -   POST /stemming_test/_doc
+                {
+                    "description" : "I loved drinking bottles of wine on last year's vacation"
+                }
+            -   analyzer used
+                {
+                    "properties" : {
+                        "description" : {
+                            "type" : "text",
+                            "analyzer" : "stemming_analyzer"
+                        }
+                    }
+                }
+            -   In this example a custom analyzer named "stemming_analyzer" is configured for the field, so that one is used
+                in favor of the "standard" analyzer.
+            -   It is similar to standard analyzer except the fact that the words of English language are stemmed.
+            -   original values of the fields are present in the _source object. But searching is not done using _source field.
+
+    -   Build in analyzers
+        -   standard analyzer
+            -   Splits text at word boundaries and removes punctuation.
+                -   Done by the standard tokenizer
+            -   Lowercases letter with lowercase token filter
+            -   Contains the stop token filter (disabled by default) to remove stop words.
+            -   Ex:
+                -   "Is that Peter's cute-looking dog?"
+                -   ["is", "that", "peter", "cute", "looking", "dog"]
+
+        -   simple analyzer
+            -   Similar to standard analyzer
+                -   Splits into token when encountering anything else than letters
+            -   Lowercases letter with lowercase tokenizer and not token filter unlike standard analyzer.
+                -   unusual and a performance hack
+            -   Ex:
+                -   "Is that Peter's cute-looking dog?"
+                -   ["is", "that", "peter", "s", "cute", "looking", "dog"]
+
+        -   whitespace analyzer
+            -   Splits text into tokens by whitespace
+                -   Does not lowercase letters
+            -   Ex:
+                -   "Is that Peter's cute-looking dog?"
+                -   ["Is", "that", "Peter's", "cute-looking", "dog?"]
+
+
+        -   keyword analyzer
+            -   No-op analyzer that leaves the input text intact
+                -   It simply output it as a single token
+            -   Used for keyword fields by default
+                -   used for exact matching
+            -   Ex:
+                -   "Is that Peter's cute-looking dog?"
+                -   ["Is that Peter's cute-looking dog?"]
+
+
+
+
 
 
 
