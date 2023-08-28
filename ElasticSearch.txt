@@ -2328,7 +2328,7 @@ Reindex documents with the Reindex API
             -   It is similar to standard analyzer except the fact that the words of English language are stemmed.
             -   original values of the fields are present in the _source object. But searching is not done using _source field.
 
-    -   Build in analyzers
+    -   Built in analyzers
         -   standard analyzer
             -   Splits text at word boundaries and removes punctuation.
                 -   Done by the standard tokenizer
@@ -2363,6 +2363,143 @@ Reindex documents with the Reindex API
             -   Ex:
                 -   "Is that Peter's cute-looking dog?"
                 -   ["Is that Peter's cute-looking dog?"]
+
+        -   pattern analyzer
+            -   A regular expression is used to match token separators
+                -   It should match whatever should split text into tokens
+            -   This analyzer is flexible
+            -   The default pattern matches all non-word characters(\W+)
+            -   lowercases letter by default.
+            -   Ex:
+                -   "Is that Peter's cute-looking dog?"
+                -   ["is", "that", "peter", "s", "cute", "looking", "dog"]
+
+
+        -   Last but not least, there are number of language specific analyzers. Can be found in the documentation.
+
+        -   How to use them in field mappings?
+            -   PUT /products
+                {
+                    "mappings" : {
+                        "properties" : {
+                            "description" : {
+                                "type" : "text",
+                                "analyzer" : "english"
+                            }
+                        }
+                    }
+                }
+            -   POST /products/_doc
+                {
+                    "description" : "Is that Peter's cute-looking dog?"
+                }
+            -   After analysis
+                ["peter", "cute", "look", "dog"]
+            -   This analyzer is used both at index and search time.
+
+        -   Configuring built-in analyzers
+            -   While all of the built in analyzers can be used in this way, many of them can also be configured to adjust
+                their behaviour.
+            -   For example, the standard analyzer can be configured to remove stopwards, which it doesnt do by default.
+            -   Instead of having to implement a custom analyzer from scratch, we can configure the built-in analyzer.
+            -   In the below example we are creating a custom analyzer by extending the standard analyzer specified in the type parameter.
+            -   Here we have named it as remove_english_stop_words which is just an arbitrary name.
+            -   PUT /products
+                {
+                    "settings" : {
+                        "analysis" : {
+                            "analyzer" : {
+                                "remove_english_stop_words" : {
+                                    "type" : "standard",
+                                    "stopwords" : "__english__"
+                                }
+                            }
+                        }
+                    }
+                }
+            -   For more information Built-in analyzer reference can be used for more parameters that can be passed for customization
+            -   Now since we have created our own custom analyzer then how to use it. Just pass in the mapping
+            -   Ex
+                -   PUT /products/_mapping
+                    {
+                        "properties" : {
+                            "description" : {
+                                "type" : "text",
+                                "analyzer" : "remove_english_stop_words"
+                            }
+                        }
+                    }
+
+    -   Creating Custom Analyzers
+        -   Suppose, we have a given text to analyze
+            "I&apos;m in a <em>good</em> mood&nbsp;-&nbsp;and I <strong>love</strong> acai!"
+        -   Using the standard analyzer to analyze this text will yield strange results;
+        -   POST /_analyze
+            {
+                "analyzer" : "standard",
+                "text" : "I&apos;m in a <em>good</em> mood&nbsp;-&nbsp;and I <strong>love</strong> acai!"
+            }
+        -   After analyzing, the html text in the text will become terms, and so do the html tags, excluding the symbols.
+        -   This is not ideal, because we don't want search queries to match any html.
+        -   Fortunately there is a character filter that does two things; it strips out HTML tags and it converts HTML
+            entities to their decoded values.
+                -   POST /_analyze
+                    {
+                        "char_filter" : ["html_strip"]
+                        "text" : "I&apos;m in a <em>good</em> mood&nbsp;-&nbsp;and I <strong>love</strong> acai!"
+                    }
+                -   Since we haven't specified a tokenizer, so the input text is just emitted as a single term.
+                -   {
+                        "tokens" : [
+                            {
+                                "token" : "I'm in a good mood - and I love acai!",
+                                "start_offset" : 0,
+                                "end_offset" : 78,
+                                "type" : "word",
+                                "position" : 0
+                            }
+                        ]
+                    }
+        -   To create a custom analyzer it should be define settings.analysis.analyzer object with its name.
+        -   Now, in the previous example we configured a built-in analyzer, but here we are creating a custom analyzer so the type is set
+            to custom. This will tell elasticsearch that we are creating our custom analyzer.
+        -   Then we specify the name of the character filter within a parameter named "char_filter", so exactly what we just did with
+            the analyze API.
+        -   Adding the standard tokenizer.
+        -   Adding token filters in the form of array.
+            -   lowercase filter to lowercase the text fields
+            -   stop filter to remove stop words
+            -   asciifolding filter to convert the letters to their ascii equivalent. Here ascii equivalent does not mean converting it to
+                number.
+        -   PUT /analyzer_test
+            {
+                "settings" : {
+                    "analysis" : {
+                        "analyzer" : {
+                            "my_custom_analyzer" : {
+                                "type" : "custom",
+                                "char_filter" : ["html_strip"],
+                                "tokenizer" : "standard",
+                                "filter" : [
+                                    "lowercase",
+                                    "stop",
+                                    "asciifolding"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        -   Now to test the analyzer we will define a query. Since my_custom_analyzer belongs to the "analyzer_test" index
+            specifically, we need to specify the index name within the endpoint.
+        -   POST /analyzer_test/analyze
+            {
+                "analyzer" : "my_custom_analyzer"
+                "text" : "I&apos;m in a <em>good</em> mood&nbsp;-&nbsp;and I <strong>love</strong> acai!"
+            }
+        -   The result generated will have input being tokenized, and the terms are lowercased. Couple of words are missing, being stop words.
+            Lastly, word acai having special characters has been converted to plain letters.
+
 
 
 
