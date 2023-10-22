@@ -2497,8 +2497,61 @@ Reindex documents with the Reindex API
                 "analyzer" : "my_custom_analyzer"
                 "text" : "I&apos;m in a <em>good</em> mood&nbsp;-&nbsp;and I <strong>love</strong> acai!"
             }
-        -   The result generated will have input being tokenized, and the terms are lowercased. Couple of words are missing, being stop words.
+        -   The result generated will have input being tokenized, and the terms are lower cased. Couple of words are missing, being stop words.
             Lastly, word acai having special characters has been converted to plain letters.
+
+
+    -   Adding analyzers to existing indices
+        -   In above we added custom analyzers during index creation time. Now this cannot be the case always.
+        -   Adding custom analyzer to an already existing index can also be one of the scenario. It is tricky.
+        -   We added one analyzer above in index analyzer_test. To add another analyzer we can use the Update index setting api as follows.
+            -   PUT /analyzer_test/_settings
+                {
+                    "analysis" : {
+                        "analyzer" : {
+                            "my_second_analyzer" : {
+                                "type" : "custom",
+                                "char_filter" : ["html_strip"],
+                                "tokenizer" : "standard",
+                                "filter" : [
+                                    "lowercase",
+                                    "stop",
+                                    "asciifolding"
+                                ]
+                            }
+                        }
+                    }
+                }
+        -   But when we try to add this we get error stating that we cannot update non-dynamic settings for open indices.
+        -   Open and closed indices
+            -   An open index is available for indexing and search requests
+            -   A closed index will refuse requests
+                -   Read and write requests are blocked.
+        -   Dynamic and static settings
+            -   In context of settings, there are two kinds of settings; static and dynamic.
+            -   Dynamic settings can be changed without closing the index first i.e an index that is actively serving requests.
+                -   Requires no downtime.
+            -   Static settings require the index to be closed first.
+                -   The index will be briefly unavailable.
+            -   Analysis settings are static settings.
+        -   Since we were changing settings related to analysis so we got the above exception.
+        -   To add the above analyzer, first we need to close the index, add the custom analyzer and then open the index
+            -   POST /analyzer_test/_close
+            -   Now run the above put request to add the new custom analyzer
+            -   POST /analyzer_test/_open
+        -   To check if the analyzer is already added, we will check the settings.
+            -   GET /analyzer_test/_settings
+        -   This needs to be done in the same way, if we want to modify character filters, tokenizer, or token filters.
+
+    -   Opening & closing indices
+        -   Fairly quick, but not be an option for production clusters.
+            -   E.g. mission critical systems where downtime is unacceptable.
+        -   Alternatively reindex documents into a new index
+            -   Create the new index with the updated settings
+            -   use an index alias for the transition
+    -   Updating analyzers
+
+
 
 
 
