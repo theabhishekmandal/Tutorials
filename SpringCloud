@@ -1,0 +1,148 @@
+
+When microservices start up, they register themselves with Eureka Discovery Server. Eureka becomes aware of each of your microservices and their address and what we need to scale up.
+
+We can start 10 more microservices and each one of them will register automatically with the Eureka Discovery Service and eureka will know their addresses as well.
+
+
+Eureka Server
+-	To enable eureka server on spring boot application add the below annotation
+	-	@SpringBootApplication
+		@EnableEurekaServer
+		public class PhotoAppDiscoveryServiceApplication {
+			// more stuff
+		}
+
+
+-	In properties file add the below things to start your eureka server
+	-	spring.application.name=discoveryService
+	-	server.port=8010
+
+	-	eureka.instance.hostname=localhost
+		-	sets the hostname of the eureka server
+		-	What if we add a random name like abhishek instead of localhost?
+			-	If you set eureka.instance.hostname=abhishek, you’re telling Eureka 	that your service is running on a machine that is reachable at the hostname abhishek. This could be a different machine on your network, or even a different machine on the internet, as long as the hostname abhishek can be resolved to an IP address. So, unless you have a host with that name in your network (or an entry in your hosts file), your client won’t be able to resolve that abhishek to an IP address.
+
+			Do you have abhishek defined in the hosts file, and does it resolve to the correct IP address? 🤔
+
+			If you open the hosts file, 'localhost' will most likely be there, mapped to something like 127.0.0.1
+
+	-	eureka.client.register-with-eureka=false
+		-	Should I get a list of all other applications from another eureka server. In this case answer is no, because this is a standalone server.
+
+	-	eureka.client.service-url.defaultZone=http://${eureka.instance.hostname}:${server.port}/eureka
+		-	This is the url of the eureka server that application will use to register and discover other services.
+
+
+
+Eureka Client
+	-	All the applications that will register themselves to eureka discovery server are themselves eureka
+		client.
+	-	To enable eureka client on spring boot application add the below annotation
+		-	@SpringBootApplication
+			@EnableDiscoveryClient
+			public class PhotoAppApiUsersApplication {
+				// more stuff
+			}
+
+	-	In properties file add the below things to start your eureka client.
+		-	eureka.client.serviceUrl.defaultZone=http://localhost:8010/eureka
+			-	this will register the client to the running eureka server.	
+
+
+Spring Cloud Api Gateway
+	-	When multiple instances of a single application is registered in eureka server. Now a client may hit requests to any of these duplicate instances which are running on different addresses.
+	-	To balance the load among all these instances spring cloud api gateway has built in load balancer and will distribute the requests.
+	-	This inbuilt loadbalancer will make our apis robusts when the load increases.
+	-	spring-cloud-starter-gateway dependency to be used and not spring-cloud-starter-gateway-mvc in pom.xml.
+	-	Spring Cloud Api Gateway will also need to be registered in Eureka Discovery Service.
+	-	The easy way to enable gateway routing is to enable the discovery locator feature in spring cloud api gateway.
+		-	This will enable spring cloud api gateway to automatically map and route the http requests to its destination, provided that the request is sent to the microservice using its application name.
+		-	    spring.cloud.gateway.discovery.locator.enabled=true
+
+	-	http://localhost:8082/PHOTOAPPAPIUSERS/users/status/check
+		-	this localhost address is of the spring cloud api gateway which is running on port number 8082.
+		-	PHOTOAPPAPIUSERS is the name of the application
+		-	the end part is the path of the controller of photoappapiusers application.
+
+	-	spring.cloud.gateway.discovery.locator.lower-case-service-id=true
+		-	this enables to search for route in lower case, 
+		-	For ex: http://localhost:8082/photoappapiusers/users/status/check
+
+Customizing the route in http requests
+	-	how to configure a route in spring cloud api gateway?
+		-	And by configuring a route we tell spring cloud api gateway where to route each http requests that the SCAG recieved to destination microservice that runs behind SCAG.
+		-	Configuration properties for routing are as follows.
+			-	spring.cloud.gateway.routes[0].id=users-status-check
+				-	here id is an unique id for this route
+			-	spring.cloud.gateway.routes[0].uri=lb://PhotoAppApiUsers
+				-	here giving the url of the microservice. Note that here we are not passing port number since it can be dynamic.
+				-	Also lb stands for loadbalancer and the name is that one which is registered with eureka server.
+			-	spring.cloud.gateway.routes[0].predicates[0]=Path=/users/status/check
+				-	list of predicates that can be defined when the request matches any of the predicates. If it matches then it will redirected to the microservice.
+				-	Here if the http request matches the path /users/status/check then only it will be forwarded.
+
+		-	When this url is hit GET http://localhost:8082/users/status/check
+			response is rendered
+			-	8082 is the port on which the loadbalancer is running
+			-	SCAG is routing the request which matches the filters and predicates defined in the properties file.
+
+	-	how to rewrite the incoming path to a different path under which our microservice is available ?
+		-	For example if we are hitting /hello/testing then it should redirect to /testing url only
+		-	configure the predicate path like this
+			-	spring.cloud.gateway.routes[0].predicates[0]=Path=/users-ws/users/status/check
+				spring.cloud.gateway.routes[0].predicates[1]=Method=GET
+
+		-	configuring a filter which will modify the above path
+			-	spring.cloud.gateway.routes[0].filters[0]=RewritePath=/users-ws/users/status/check, /users/status/check
+
+			-	the above filter can be written using regular expression
+				-	spring.cloud.gateway.routes[0].filters[0]=RewritePath=/users-ws/(?<segment>.*), /$\{segment}
+
+
+Simultaneous running automatic and manual routing
+	-	adding below configuration of both manual and routing, we can now send http requests to the microservice end point using two different url paths
+		-	http://localhost:8082/photoappapiusers/users/status/check
+			-	using automatic routing
+
+		-	http://localhost:8082/users/status/check
+			-	using manual routing
+
+
+	-	spring.application.name=PhotoAppApiSpringCloudAPIGateway
+		server.port=8082
+		eureka.client.service-url.defaultZone=http://localhost:8010/eureka
+
+		# automatic routing
+		spring.cloud.gateway.discovery.locator.enabled=true
+		spring.cloud.gateway.discovery.locator.lower-case-service-id=true
+
+
+		# manual routing
+		spring.cloud.gateway.routes[0].id=users-status-check
+		spring.cloud.gateway.routes[0].uri=lb://PhotoAppApiUsers
+		spring.cloud.gateway.routes[0].predicates[0]=Path=/users/status/check
+		spring.cloud.gateway.routes[0].predicates[1]=Method=GET
+		spring.cloud.gateway.routes[0].filters[0]=RemoveRequestHeader=Cookie
+
+
+Built in Predicate Factories
+	-	This can be found in Spring cloud api gateway documentation.
+
+Built in Gateway Filters
+	-	There are multiple gateway filters in SCAG documentation.
+
+
+Running more instances of the microservices
+	-	In PhotoAppApiUsers we have defined the port number as 0. Which means port number will dynamically assigned at runtime.
+	-	Now if we run more than one instance of the same microservice with port number 0, then only one of them will get registered. Because dynamic port number is assigned after the registeration with eureka.
+	-	Since before assigning the port number both of the instances have same name then, only one of them gets registered with eureka.
+	-	if in properties file we define different port number for each instance then multiple instances can be registered with eureka.
+	-	Another approach is to assign the random eureka instance id for each instance of the microservice.
+		-	eureka.instance.instance-id=${spring.application.name}:${spring.application.instance_id:${random.value}}
+			-	spring.applcation.name is the name of the application read from properties file
+			-	spring.application.instance_id can either be passed as an arguement or can be randomly generated.
+
+
+
+Tricks learned
+-	If any spring boot is configured with port as 0 then, dynamically the port number is assigned to the application at runtime.
