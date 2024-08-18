@@ -19,6 +19,7 @@ Eureka Server
 
 	-	eureka.instance.hostname=localhost
 		-	sets the hostname of the eureka server
+	
 		-	What if we add a random name like abhishek instead of localhost?
 			-	If you set eureka.instance.hostname=abhishek, you’re telling Eureka 	that your service is running on a machine that is reachable at the hostname abhishek. This could be a different machine on your network, or even a different machine on the internet, as long as the hostname abhishek can be resolved to an IP address. So, unless you have a host with that name in your network (or an entry in your hosts file), your client won’t be able to resolve that abhishek to an IP address.
 
@@ -28,6 +29,15 @@ Eureka Server
 
 	-	eureka.client.register-with-eureka=false
 		-	Should I get a list of all other applications from another eureka server. In this case answer is no, because this is a standalone server.
+		Common Use Cases:
+		-	Eureka Server Itself: 
+			-	Often, when setting up a Eureka server, this property is set to false to prevent the server from trying to register itself as a client.
+
+		-	Client-Only Applications: 
+			-	If you have an application that only needs to consume services (i.e., it does not provide any services itself), you might use this setting so that it can discover other services without registering itself.
+
+		-	Testing and Local Development: 
+			-	During development, you might want to run your application without registering it with a Eureka server, especially if the server is not running or if you’re working with a stubbed version of the service registry.
 
 	-	eureka.client.service-url.defaultZone=http://${eureka.instance.hostname}:${server.port}/eureka
 		-	This is the url of the eureka server that application will use to register and discover other services.
@@ -51,10 +61,15 @@ Eureka Client
 
 Spring Cloud Api Gateway
 	-	When multiple instances of a single application is registered in eureka server. Now a client may hit requests to any of these duplicate instances which are running on different addresses.
+	
 	-	To balance the load among all these instances spring cloud api gateway has built in load balancer and will distribute the requests.
+	
 	-	This inbuilt loadbalancer will make our apis robusts when the load increases.
+	
 	-	spring-cloud-starter-gateway dependency to be used and not spring-cloud-starter-gateway-mvc in pom.xml.
+	
 	-	Spring Cloud Api Gateway will also need to be registered in Eureka Discovery Service.
+	
 	-	The easy way to enable gateway routing is to enable the discovery locator feature in spring cloud api gateway.
 		-	This will enable spring cloud api gateway to automatically map and route the http requests to its destination, provided that the request is sent to the microservice using its application name.
 		-	    spring.cloud.gateway.discovery.locator.enabled=true
@@ -68,17 +83,32 @@ Spring Cloud Api Gateway
 		-	this enables to search for route in lower case, 
 		-	For ex: http://localhost:8082/photoappapiusers/users/status/check
 
-Customizing the route in http requests
+SCAG - spring cloud api gateway.
+Customizing the route in http requests or called as Manual Routing
 	-	how to configure a route in spring cloud api gateway?
 		-	And by configuring a route we tell spring cloud api gateway where to route each http requests that the SCAG recieved to destination microservice that runs behind SCAG.
 		-	Configuration properties for routing are as follows.
+
 			-	spring.cloud.gateway.routes[0].id=users-status-check
 				-	here id is an unique id for this route
+
 			-	spring.cloud.gateway.routes[0].uri=lb://PhotoAppApiUsers
+				
 				-	here giving the url of the microservice. Note that here we are not passing port number since it can be dynamic.
+				
 				-	Also lb stands for loadbalancer and the name is that one which is registered with eureka server.
+
+				-	One may ask why use lb://Service-Id instead of passing the full http url of the microservice.
+					-	there are multiple use cases
+						-	gateway will dynamically discover and route the request to microservice if microservice is registered with eureka server. Even if new instances are added or old ones are destroyed
+						-	No hardcoding of the url.
+						-	adding loadbalancer helps in distributing the load among multiple instances.
+						-	etc.
+
 			-	spring.cloud.gateway.routes[0].predicates[0]=Path=/users/status/check
+		
 				-	list of predicates that can be defined when the request matches any of the predicates. If it matches then it will redirected to the microservice.
+		
 				-	Here if the http request matches the path /users/status/check then only it will be forwarded.
 
 		-	When this url is hit GET http://localhost:8082/users/status/check
@@ -146,3 +176,44 @@ Running more instances of the microservices
 
 Tricks learned
 -	If any spring boot is configured with port as 0 then, dynamically the port number is assigned to the application at runtime.
+
+
+Configuring h2 database
+	-	to install h2 console through which we can see all database entries
+		-	download jar from https://www.h2database.com/html/download.html
+		-	now go to bin we will see a jar file.
+		-	run it via terminal on different port using below. It will open in browser.
+			-	java -jar h2-2.3.232.jar -web -webPort 9999 -browser
+		-	Do not run this when it is running from a microservice application, see below.
+
+	-	adding pom dependency in PhotoAppApiUsers microservice.
+		-	<dependency>
+				<groupId>com.h2database</groupId>
+				<artifactId>h2</artifactId>
+				<scope>runtime</scope>
+			<dependency>
+
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-data-jpa</artifactId>
+			</dependency>
+
+	-	enabling property via
+		-	spring.h2.console.enabled=true
+		
+		-	spring.h2.console.settings.web-allow-others=true
+			-	it is required because h2 database has firewall built in. And we want to connect multiple microservices via gateway so that is why it is needed.
+		
+		-	spring.datasource.url=jdbc:h2:mem:testdb
+			spring.datasource.driverClassName=org.h2.Driver
+			spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+
+	-	accessing h2 console via eureka console
+		-	go to eureka url, in current case it is localhost:8010
+		-	here we will see multiple microservice running.
+		-	click the url part for that service in which h2 database is installed.
+		-	on the url use like this
+			-	localhost:portNumber/h2-console
+		-	verify the parameters in the h2 console with the yml properties
+			-	url: jdbc:h2:mem:testdb
+        	-	driverClassName: org.h2.Driver
