@@ -1,0 +1,59 @@
+Why java is called compiled interpreted language ?
+	-	First when java fileName.java is called the JIT compiler turns .java file to bytecode in the form of .class file.
+	-	Second when java fileName is called, then it creates a runtime environment, where inside virtual machine we have both
+		compiler and interpreter.
+		-	It firsts interprets the code, but JVM monitors which parts of code are frequently executed and translates them to
+			machine code for direct execution on the hardware.
+		-	So, basically the code that repeats again is compiled, other parts are interpreted to avoid latency of compilation.
+	-	Reference - https://stackoverflow.com/questions/1326071/is-java-a-compiled-or-an-interpreted-programming-language
+
+
+
+JVM bytecode interpretation
+	-	Code runs faster the longer it is left to run.
+		-	because the virtual machine can profile the code and work out which bits of it could be optimized by compiling them to native
+			machine code.
+		-	so a method that runs multiple times evey minutes is very likely to be just in time compiled. But a method that runs once a day
+			might not ever be.
+	-	JIT compiled the process of compiling converting the bytecode to native machine code is run in separate thread.
+	-	The virtual machine is of course a multithreaded application itself, so threads within the virtual machine responsible for 
+		running the code that is interpreting the bytecode and executing the bytecode won't be affected by the thread doing Jit compiling.
+	-	So the process of Jit compiling does not stop the application running.
+
+
+Compiler Flags
+	-	-XX:+PrintCompilation
+		-	XX are case senstive advanced flags
+		-	+ or - means if you want to switch of the features of the flag.
+
+		-	When an app is run it will be in a table format with 4 columns
+			-	first one is the number of milliseconds since the virtual machine started.
+			-	second one is the order in which the method or codeblock was compiled. Also these dont appear in order.
+			-	in the third column we could see symbols such as n and s. n means it's a native method and s means it's a synchronized
+				method. ! means some exception handling is being done and % symbol means that the code has been natively compiled and is
+				now running in a special part of memory called the code cache.
+			-	in the third column we would see numbers from 0 to 4, well this tells what type of compiling has taken place. A zero means a 	no compilation. And numbers 1 to 4 means a deeper level of compilation has happened.
+
+
+-	There are two types of compilers built into JVM C1 and C2. C1 compiles ranges from 1 to 3 while C2 compiles to the 4 one.
+-	The virtual machine decides which level of compilation to apply to a particular block of code based on how often it is run and how complex or time consuming it is. And this is called profiling the code.
+-	C1 compiles from range 1 to 3, while C2 compiles to level 4. Higher the number, the profile the code has been. 
+-	At compilationg of level 4 which is the highest, it may or maynot happen that the code is put into code cache which is special area of memory for quickest way to access. This is represented by % symbol. 
+
+
+Tuning the Code cache
+-	-XX:+PrintCodeCache to print the size of codecache.
+-	if code cache gets full then even though application might work, it will not be optimally running.
+-	Code cache size depends upon the version of java being used, if it is below java 7 then for 64 bit jvm it will be 48 Mb max.
+-	For java 8 and above for 64 bit jvm it will be 240 Mb
+-	three ways of changing the code cache size.
+	-	InitialCodeCacheSize
+		-	it is the size of the code cache when the application starts.
+	-	ReservedCodeCacheSize
+		-	it is the maximum size of the code cache.
+	-	CodeCacheExpansionSize
+		-	expansion size dictates how quickly the code cache should grow as it gets full.
+
+-	To use the flags
+	-	-XX:ReservedCodeCacheSize=28m
+	-	here we use m, k, g for mb, kb and gb respectively.
