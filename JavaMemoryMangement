@@ -57,3 +57,37 @@ Tuning the Code cache
 -	To use the flags
 	-	-XX:ReservedCodeCacheSize=28m
 	-	here we use m, k, g for mb, kb and gb respectively.
+
+JVM Versions
+-	When to use 32 bit and 64 bit jvm?
+	-	32 Version
+		-	Might be faster if heap < 3 GB
+			-	This is because, each pointer to the object in the memory will be smaller. It will be 32 bits rather than 64 bits.
+		-	Max heap size should be 4 GB
+			-	total memory of the application should not exceed 4 GB
+		-	Only the client compiler is present.
+			-	An application that is going to be short lived, which is going to run a process and then finish will think of it is as being a client application
+
+
+	-	64 Version
+		-	Necessary if heap > 4 GB
+		-	Might be faster if using long/double
+		-	Max heap size - OS dependent
+		-	Client and server compiler both are present.
+			-	An application that is goint to run for a long time such as a web server, will think of as being a web server application.
+
+-	From performance perspective, difference should be clear. For short lived application start up time is going to be important. 
+	For a server application startup time becomes less important, what becomes more critical is that the performance of that application
+	is optimized over time.
+
+
+Switching the compiler types in jvm
+-	using the -client flag we can switch to client compiler
+-	For short lived application native compilation is not necessary, which creates some overhead and is waste of time.
+-	In some operating system this client flag is ignored i.e tier 4 compilation still takes place.
+-	But there is still a benefit of using the client flag because the startup time will be much quicker.
+-	When a small application was run using the -client flag it was quicker than the server based compiler.
+	-	client compiler >>> faster than >>> server compiler for short lived applications.
+
+-	-server flag is used to switch to 32 bit based server compiler
+-	-d64 -server flags are for 64 bit based server compiler.
