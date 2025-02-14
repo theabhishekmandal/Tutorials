@@ -8,13 +8,13 @@ Types of Requirements
 	-	System Constraints
 		-	Limitations and boundaries.
 
-Functional Requirements
+(1)Functional Requirements
 	-	More powerful way of gathering requirements:
 		-	(1)use cases
 			-	Situation/Scenario in which our system is used.
 		-	(2)user flows
 			-	A Step by Step/ graphical representation of each use case.
-	-	Requirement Gatering Steps
+	-	Requirement Gathering Steps
 		-	(1)Identify all the actors/users in the system.
 		-	(2)Capture and describe all possible use-cases/scenarios.
 		-	(3)User flow - Expand each use case through flow of events.
@@ -35,7 +35,7 @@ Functional Requirements
 		-	Sequence Diagram - Diagram that represents interactions between actors and objects.
 			-	It can be done by using UML(Unified Modeling Language)
 
-Non-Functionl Requirements
+(2)Non-Functionl Requirements
 	-	Quality attributes are non-functional requirements
 	-	The describe
 		-	The qualities of functional requirements.
@@ -64,7 +64,7 @@ Non-Functionl Requirements
 				-	Eg: Unrealistic low latency
 						-	Server is in asia, while client is in america. Where minimum latency is 100ms and clients ask for less than 100ms.
 
-System Constraints
+(3)System Constraints
 	-	A system constraint is essentially a decision that was already either fully or partially made for us, restricting our degress of freedom.
 	-	And it is not always a bad thing.
 	-	It makes the jobs easy for designing a system.
@@ -88,5 +88,40 @@ Types of Constraints
 				-	Real Constraints - Here we can't negotiate
 				-	Self-imposed constraints - We can have negotiation with the client.
 		-	(2)Use loosly coupled architecture
-			=	System should not be tightly coupled to a particular technology.
-			=	Usage of different technology/service in future should need minimal changes.
+			-	System should not be tightly coupled to a particular technology.
+			-	Usage of different technology/service in future should need minimal changes.
+
+
+List of Quality Attributes
+	-	Performance
+	-	Scalability
+	-	Availability
+
+Performance Definitions
+	-	(1)Response Time
+		-	Time between client sending a request and receiving a response.
+		-	Response time = processing time + Waiting Time
+	-	(2)ThroughPut
+		-	Amount of work performed by our system per unit of time.
+			-	Measured in task/second.
+		-	Amount of data performed by our system per unit of time.
+			-	Measured in bits/second, Bytes/second, MBytes/second.
+
+	-	1. Measuring Response time Correctly
+		-	While measuring response time, waiting time should also be considered, as one request may process fast but more time is spend in waiting. 
+	-	2. Response time Distribution
+		-	Creating a histogram for number of requests and their response times.
+		-	Percentile Definition
+			-	The xth Percentile is the value below which x% of the values can be found.
+			-	For eg: 20th percentile is having 10 milliseconds response time. Meaning 20 percents of the requests were having response time less than 10 milliseconds.
+		-	Tail Latency
+			-	The small percentage of response times from a system, that take the longest in comparison to the rest of the values.
+			-	Shorter tail is better
+		-	Response time Goals Examples
+			-	Eg:
+				-	30ms at 95th percentile of response time. Meaning 95% of requests should have response time atmost 30ms. Rest 5% can have more response time.
+	-	3. Performance Degradation
+		-	A point in time where response time increases and throughput decreases significantly.
+		-	High-Resource Utilization
+			-	High CPU utilization
+			-	High memory consumption
