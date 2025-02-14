@@ -107,6 +107,7 @@ Performance Definitions
 		-	Amount of data performed by our system per unit of time.
 			-	Measured in bits/second, Bytes/second, MBytes/second.
 
+	-	Important Considerations while considering Performance.
 	-	1. Measuring Response time Correctly
 		-	While measuring response time, waiting time should also be considered, as one request may process fast but more time is spend in waiting. 
 	-	2. Response time Distribution
