@@ -126,3 +126,124 @@ Performance Definitions
 		-	High-Resource Utilization
 			-	High CPU utilization
 			-	High memory consumption
+
+Most Important Quality Attributes of large scale systems
+(1)Scalability
+	-	Load/traffic never stays the same for a given system.
+	-	Scalability - The measure of system's ability to handle a growing amount of work, in an easy and cost effective way, by adding resources to the system.
+
+	-	Types of Scalability
+		-	(1) Scaling up/Vertical Scalability
+			-	Adding resources or upgrading the existing resources on a single computer, to allow our system to handle higher traffic or load.
+			-	Pros
+				-	Any application can benefit from it 
+				-	No code changes required
+				-	The migration between different machines is very easy. When traffic is high switch to bigger machine and when traffic is low then switch to lower machine.
+
+			-	Cons
+				-	Scope of upgrade is limited
+				-	We are locked to a centralized system which cannot provide
+					-	High Availability
+					-	Fault tolerance
+		-	(2) Scaling out/Horizontal Scalability
+			-	Adding more resources in a form of new instances running on different machines, to allow our system to handle higher traffic or load.
+			-	Pros
+				-	No limit on scalability
+				-	It's easy to add/remove machines 
+				-	If designed correctly we get:
+					-	High Availability
+					-	Fault tolerance
+			-	Cons
+				-	Initial code changes may be required.
+				-	Increased complexity, coordination overhead.
+
+		-	(3) Team/Organizational Scalability
+			-	The measure of a systems ability to handle a growing amount of work(features, testing, bugs, releases), in an easy and cost effective way, by adding resources(more engineers) to the system.
+			-	If a codebase is very large and complex, so it is better to break it into separate modules, so that other engineers do not conflict with each other.
+
+			-	Reasons for Productivity Degradation
+				-	Many crowded meetings
+				-	Code merge conflict
+				-	Business Complexity - Longer ramp up time.
+				-	Testing is harder and slower
+				-	Releases become very risky
+(2)Availability
+	-	Availability is an important attribute when designing a system
+	-	It has the greatest impact on:
+		-	Our users
+		-	Our business
+	-	The fraction of time/probability that our service is operationally functional and accessible to the user.
+	-	Formula for Availability
+		-	Uptime = Time that our system is operationally functional and accessible to the user
+		-	Downtime = Time that our system is unavailable to the user
+		-	Availability = Uptime/(Uptime + Downtime)
+		-	Alternative way to calculate Availability
+			-	(1)MTBF(Mean Time Between Failures)
+				-	Represents the average time our system is operational
+				-	Useful when:	
+					-	Dealing with multiple pieces of hardware
+					-	Each component has its own operationsl shelf life
+					-	We are not using cloud/third-party API with given uptime and availability
+			-	(2)MTTR(Mean Time To Recovery)
+				-	Time average it takes us to detect and recover from a failure
+				-	Average downtime of our system
+		-	Availability = MTBF / (MTBF + MTTR)
+		-	In practice, MTTR cannot be zero
+		-	Shows that detectability and fast recovery can help us achieve high availability
+
+	-	How much is High Availability?
+		-	Users wants 100% availability
+		-	On the engineering side:
+			-	it is extremely hard to achieve
+			-	Leaves no time for maintenance/upgrades
+		-	Industry Standard of Availability
+			-	No strict definition of what constitutes high availability.
+			-	Industry standard set by cloud vendors is typically 99.9% or higher.
+
+	-	Sources of Failures for High Availability
+		-	Human Error
+			-	Pushing faulty config to production etc.
+		-	Software Errors
+			-	Long garbage collections
+			-	out of memory exceptions etc.
+		-	Hardware Failures
+			-	Drivers, servers, disk failures etc.
+
+	-	Fault Tolerance
+		-	To achieve HA, a system should be fault tolerant
+		-	Fault tolerance enables our system to remain operational and available to users despite
+			failures within one or multiple of its components.
+		-	When failures happen a fault-tolerant system will:
+			-	Continue operating at the same/reduced level of performance
+			-	Prevent the system from becoming unavailable
+		-	Fault tolerance revolves around 3 major tactics
+			-	(1)Failure Prevention
+				-	To prevent system from going down, eliminate any Single point of failure in our system.
+				-	Examples of single point of failure can be:
+					-	One server where we're running our application
+					-	Storing all our data on the one instance of database that runs on single computer
+				-	Best way to eliminate a single point of failure is through REPLICATION and REDUNDANCY.
+				-	Types of REDUNDANCY
+					-	Spatial Redundancy - Running replicas of our application on different computers
+					-	Time Redundancy - Repeating the same operation/request multiple times until we succeed/give up.
+				-	Strategies for Redundancy and Replication
+					-	Active-Active Architecture
+						-	When all replicas serve the requests, so all of them are in sync with each other. And if one of the replica goes down, others can step in. Here same request is not sent to all the replicas.
+						-	Advantages
+							-	Load is spread among all the replicas. Identical to horizontal scalability.
+							-	Allows more traffic.
+							-	Better performance.
+						-	Disadvantages
+							-	All the replicas are taking requests.
+							-	Additional coordination required to keep active replicas in sync.
+					-	Active-Passive Architecture
+						-	When one of the replicas accepts all the requests, and the other replicas takes periodic snapshots of the main replica's state.
+						-	Advantages
+							-	Implementation is easier
+							-	There is clear leader with up-to-date data.
+							-	Rest of the replicas are just followers
+						-	Disadvantages
+							-	Ability to scale our system is lost.
+							-	All the requests still go to only one machine.
+			-	(2)Failure Dectection and Isolation
+			-	(3)Recovery
