@@ -246,4 +246,29 @@ Most Important Quality Attributes of large scale systems
 							-	Ability to scale our system is lost.
 							-	All the requests still go to only one machine.
 			-	(2)Failure Dectection and Isolation
+				-	To detect failures such as one of the instance of servers not working, we need something for health monitoring system.
+				-	False Positive
+					-	But the issue might be the network or long garbage collection.
+					-	Then the monitoring service is going to have a false positive.
+					-	It assumed a healthy host is faulty.
+				-	False Negative
+					-	The monitoring service shouldn't have false negatives.
+					-	False negative mean that:
+						-	The servers may have crashed
+						-	The monitoring system did not detect that.
+				-	Monitoring System Functions
+					-	Exchange of messages in the form of pings and heartbeats.
+					-	Collect data about the number of errors each host gets per minute.
+						-	If the error rate in one of the hosts is high, it can interpret that as failure of the host.
+					-	Collect information about time taken for each host to respond.
+						-	If the time to respond to requests becomes long, it can decide the host is slow
 			-	(3)Recovery
+				-	Availability = MTBF / (MTBF + MTTR)
+					-	If MTTR is close to 0, then availability becomes close to 100%
+				-	Actions after detecting faulty instance/server:
+					-	Stop sending traffic/workload to that host.
+					-	Restart the host to make the problem go away.
+					-	Rollback - going back to a version that was stable and correct.
+				-	Rollbacks
+					-	Common in databases
+					-	rollback to previous stable version
