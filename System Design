@@ -272,3 +272,49 @@ Most Important Quality Attributes of large scale systems
 				-	Rollbacks
 					-	Common in databases
 					-	rollback to previous stable version
+
+
+SLA, SLO, SLI
+-	SLA(Service Level Agreement)
+	-	It is a legal contract that represents our quality service such as:
+		-	Availability
+		-	Performance
+		-	Data durability
+		-	Time to respond to success failures
+	-	It states the penalties and financial consequences, if we breach the contract
+	-	The penalties include:
+		-	Full/Partial refunds
+		-	Subscription/License extensions
+		-	Service credits
+	-	SLA and Users
+		-	SLA exists for:
+			-	External paying users(always)
+			-	Free External Users(sometimes)
+			-	Internal users within our company(occasionally)
+		-	Internal SLAs don't include any penalties
+		-	SLA for free external users makes sense if our system has major issues during a free trial of a service
+		-	We compensate those users with a trial extension or credits for future.
+		-	Companies providing entirely free services don't publish SLA
+
+-	SLO(Service Level Objectives)
+	-	Individual goals set for our system.
+	-	Each SLO represents a target value/range that our service needs to meet
+	-	For example, we can have:
+		-	Availability service objective of 3 nines
+		-	Response time SLO of less than 100 milliseconds at the 90th percentile.
+		-	Issue Resolution Time Objective of between 24 to 48 hours.
+	-	SLOs include:
+		-	Quality attributes fromt the begining of the design process.
+		-	Other objectives of our system.
+	-	If a system has an SLA, then each SLO represent an individual agreement within that SLA about a specific metric in the system. So essentially an SLA aggregates all the service level objectives in a single legal document.
+	-	Systems that don't have SLA still must have SLOs
+	-	If we don't set SLOs then our user won't know what to expect from our system.
+
+-	SLI(Service Level Indicators)
+	-	Quantitative measure of our compliance with a service-level objective.
+	-	It is the actual numbers:
+		-	Measured using montioring service
+		-	Calculated from our logs
+	-	It can later be compared to our SLOs
+	-	Examples: Percentage of user requests receiving a successful response can be used as a SLI for availability.
+		-	Later it can be compared to the availability SLO of three nines that we set
